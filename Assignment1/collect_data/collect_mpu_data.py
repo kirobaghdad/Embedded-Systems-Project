@@ -25,7 +25,7 @@ def collect_data(duration_seconds=60):
             csvwriter = csv.writer(csvfile)
             
             # Write header
-            header = ['timestamp', 'ax', 'ay', 'az', 'gx', 'gy', 'gz']
+            header = ['timestamp', 'yaw','pitch','roll','ax','ay','az']
             csvwriter.writerow(header)
             
             # Record start time
