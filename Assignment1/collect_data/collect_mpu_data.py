@@ -28,9 +28,7 @@ def collect_data(duration_seconds=60):
             header = ['timestamp', 'yaw','pitch','roll','ax','ay','az']
             csvwriter.writerow(header)
             
-            # Record start time
-            start_time = time.time()
-            
+
             # Clear any initial buffer
             ser.flushInput()
             
@@ -40,8 +38,15 @@ def collect_data(duration_seconds=60):
                 line = ser.readline().decode('utf-8').strip()
                 # print(line)
         
+            print(f"Wait for 15 Seconds for the MPU to settle before collecting data")
+            time.sleep(15)
             
             print(f"Collecting data for {duration_seconds} seconds...")
+            
+            ser.flushInput()
+            
+            # Record start time
+            start_time = time.time()
             
             while (time.time() - start_time) < duration_seconds:
                 try:
@@ -75,4 +80,4 @@ def collect_data(duration_seconds=60):
 
 if __name__ == "__main__":
     # Collect data for 60 seconds (you can modify this)
-    collect_data(duration_seconds=60)
+    collect_data(duration_seconds=10)

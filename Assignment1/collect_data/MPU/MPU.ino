@@ -1,10 +1,11 @@
 #include "I2Cdev.h"
-#include "MPU6050_6Axis_MotionApps20.h"
-// #include "MPU6050_6Axis_MotionApps612.h" // Uncomment this library to work with DMP 6.12 and comment on the above library.
+// #include "MPU6050_6Axis_MotionApps20.h"
+#include "MPU6050_6Axis_MotionApps612.h" // Uncomment this library to work with DMP 6.12 and comment on the above library.
 
 MPU6050 mpu;
 #define OUTPUT_READABLE_YAWPITCHROLL
 #define OUTPUT_READABLE_REALACCEL
+// #define OUTPUT_READABLE_WORLDACCEL
 // #define OUTPUT_TEAPOT
 
 #define GATHER_DATA
@@ -100,8 +101,15 @@ void setup()
   /* Making sure it worked (returns 0 if so) */
   if (devStatus == 0)
   {
-    mpu.CalibrateAccel(6); // Calibration Time: generate offsets and calibrate our MPU6050
-    mpu.CalibrateGyro(6);
+    // mpu.CalibrateAccel(10); // Calibration Time: generate offsets and calibrate our MPU6050
+    // mpu.CalibrateGyro(10);
+
+    mpu.setXAccelOffset(-576);
+    mpu.setYAccelOffset(-3028);
+    mpu.setZAccelOffset(1184);
+    mpu.setXGyroOffset(63);
+    mpu.setYGyroOffset(-94);
+    mpu.setZGyroOffset(-40);
 
     Serial.println("These are the Active offsets: ");
 
@@ -201,5 +209,5 @@ void loop()
     digitalWrite(LED_BUILTIN, blinkState);
   }
 
-  _delay_ms(50);
+  _delay_ms(10);
 }
