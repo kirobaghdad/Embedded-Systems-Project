@@ -104,12 +104,12 @@ void setup()
     // mpu.CalibrateAccel(10); // Calibration Time: generate offsets and calibrate our MPU6050
     // mpu.CalibrateGyro(10);
 
-    mpu.setXAccelOffset(-576);
-    mpu.setYAccelOffset(-3028);
-    mpu.setZAccelOffset(1184);
-    mpu.setXGyroOffset(63);
-    mpu.setYGyroOffset(-94);
-    mpu.setZGyroOffset(-40);
+    mpu.setXAccelOffset(-559);
+    mpu.setYAccelOffset(-3012);
+    mpu.setZAccelOffset(1187);
+    mpu.setXGyroOffset(57);
+    mpu.setYGyroOffset(-90);
+    mpu.setZGyroOffset(-42);
 
     Serial.println("These are the Active offsets: ");
 
