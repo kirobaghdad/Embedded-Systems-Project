@@ -4,12 +4,13 @@
 import serial
 import csv
 import time
-
 serial_port = 'COM10'
 baud_rate = 115200
 
 # File to save the data
 output_file = 'mpu6050_data.csv'
+
+
 
 def collect_data(duration_seconds=60):
     # Open serial connection
@@ -36,10 +37,10 @@ def collect_data(duration_seconds=60):
 
             while(not line.startswith("Start")):
                 line = ser.readline().decode('utf-8').strip()
-                # print(line)
+
         
-            print(f"Wait for 15 Seconds for the MPU to settle before collecting data")
-            time.sleep(15)
+            # print(f"Wait for 15 Seconds for the MPU to settle before collecting data")
+            # time.sleep(15)
             
             print(f"Collecting data for {duration_seconds} seconds...")
             
@@ -49,6 +50,8 @@ def collect_data(duration_seconds=60):
             start_time = time.time()
             
             while (time.time() - start_time) < duration_seconds:
+
+
                 try:
                     # Read line from serial
                     line = ser.readline().decode('utf-8').strip()

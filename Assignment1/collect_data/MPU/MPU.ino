@@ -1,6 +1,11 @@
+#include <Servo.h>
 #include "I2Cdev.h"
 // #include "MPU6050_6Axis_MotionApps20.h"
 #include "MPU6050_6Axis_MotionApps612.h" // Uncomment this library to work with DMP 6.12 and comment on the above library.
+
+Servo myServo;  // Create a Servo object
+
+int servoPin = 9;  // Pin connected to the servo signal
 
 MPU6050 mpu;
 #define OUTPUT_READABLE_YAWPITCHROLL
@@ -42,6 +47,8 @@ void DMPDataReady()
 
 void setup()
 {
+  myServo.attach(servoPin);  // Attach the servo to pin 9
+
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
   Wire.begin();
   Wire.setClock(400000); // 400kHz I2C clock. Comment on this line if having compilation difficulties
@@ -104,12 +111,19 @@ void setup()
     // mpu.CalibrateAccel(10); // Calibration Time: generate offsets and calibrate our MPU6050
     // mpu.CalibrateGyro(10);
 
+    myServo.write(0);    // Move to 0 degrees
+
+    _delay_ms(1000);
+
     mpu.setXAccelOffset(-559);
     mpu.setYAccelOffset(-3012);
     mpu.setZAccelOffset(1187);
     mpu.setXGyroOffset(57);
     mpu.setYGyroOffset(-90);
     mpu.setZGyroOffset(-42);
+
+
+
 
     Serial.println("These are the Active offsets: ");
 
@@ -150,16 +164,48 @@ void setup()
 
   mpu.setIntFIFOBufferOverflowEnabled(true);
 
+
+
   Serial.println("yaw,pitch,roll,ax,ay,az");
 }
+
+bool rotate = 0;
+int stepSize = 4;
+int currentPos = 0;
+
+int count = 0;
 
 void loop()
 {
   if (!DMPReady)
     return; // Stop the program if DMP programming fails.
 
+
+  if(count == 100)
+  {
+    myServo.write(0);
+    rotate = 1;
+    Serial.read();
+    Serial.flush();
+  }
+  
+  if(count <= 100)
+    count++;  
+
+
+  if(rotate)
+  {
+    if(currentPos < 90)
+    {
+      currentPos += stepSize;  // Increment position
+      myServo.write(currentPos);  // Update servo position
+    }
+  }
+
+
+
   /* Read a packet from FIFO */
-  if (!mpu.getIntFIFOBufferOverflowStatus() && mpu.dmpGetCurrentFIFOPacket(FIFOBuffer))
+  if (mpu.dmpGetCurrentFIFOPacket(FIFOBuffer))
   { // Get the Latest packet
 #ifdef OUTPUT_READABLE_YAWPITCHROLL
     /* Display Euler angles in degrees */
@@ -209,5 +255,5 @@ void loop()
     digitalWrite(LED_BUILTIN, blinkState);
   }
 
-  _delay_ms(10);
+  _delay_ms(30);
 }
