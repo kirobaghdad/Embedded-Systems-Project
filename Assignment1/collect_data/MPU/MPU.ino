@@ -115,11 +115,11 @@ void setup()
 
     _delay_ms(1000);
 
-    mpu.setXAccelOffset(-559);
-    mpu.setYAccelOffset(-3012);
-    mpu.setZAccelOffset(1187);
-    mpu.setXGyroOffset(57);
-    mpu.setYGyroOffset(-90);
+    mpu.setXAccelOffset(-52);
+    mpu.setYAccelOffset(-3082);
+    mpu.setZAccelOffset(1196);
+    mpu.setXGyroOffset(58);
+    mpu.setYGyroOffset(-92);
     mpu.setZGyroOffset(-42);
 
 
@@ -228,11 +228,11 @@ void loop()
     mpu.dmpGetGravity(&gravity, &q);
     mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
 
-    Serial.print(aaReal.x);
+    Serial.print(aaReal.x / 16384.0);
     Serial.print(" ");
-    Serial.print(aaReal.y);
+    Serial.print(aaReal.y / 16384.0);
     Serial.print(" ");
-    Serial.print(aaReal.z);
+    Serial.print(aaReal.z / 16384.0);
     Serial.println();
 #endif
 
