@@ -1,7 +1,7 @@
-#include "../../libraries/std_types.h"
-#include "../../mcal/dio_driver/dio_int.h"
-#include "util/delay.h"
-#include "led_helper.h"
+#include "TYPES.h"
+#include <util/delay.h>
+#include "LED-HANDLER/led_helper.h"
+#include "LED-HANDLER/led_int.h"
 
 uint8_t LED_u8LedOn(uint8_t port_id, uint8_t led_pin)
 {
@@ -47,7 +47,7 @@ uint8_t LED_u8LedToggle(uint8_t port_id, uint8_t led_pin)
 	}
 	return error_status;
 }
-uint8_t LED_u8LedBlink(uint8_t port_id, uint8_t led_pin, t delay_time_ms)
+uint8_t LED_u8LedBlink(uint8_t port_id, uint8_t led_pin, uint16_t delay_time_ms)
 {
 	uint8_t IsOut;
 	uint8_t error_status = DIO_u8IsPinOutPut(port_id, led_pin, &IsOut);

@@ -12,6 +12,9 @@
     "adc_register.h": "c",
     "adc_int.h": "c",
     "wdt_config.h": "c",
-    "cpu_configuration.h": "c"
+    "cpu_configuration.h": "c",
+    "dio_int.h": "c",
+    "motor_cfg.h": "c",
+    "ultrasonic_cfg.h": "c"
   }
 }

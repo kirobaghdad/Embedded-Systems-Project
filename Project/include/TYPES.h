@@ -1,9 +1,9 @@
 #ifndef TYPES_H_
 #define TYPES_H_
 
-#define NULL_PTR ((void*)0)
+#define NULL_PTR ((void *)0)
 #define NULL_CHAR ('\0')
-
+#define INITIAL_VALUE_ZERO (0)
 
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
