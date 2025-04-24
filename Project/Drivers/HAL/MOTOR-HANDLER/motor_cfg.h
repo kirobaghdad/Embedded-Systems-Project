@@ -1,9 +1,0 @@
-#ifndef HAL_MOTOR_DRIVER_MOTOR_CFG_H_
-#define HAL_MOTOR_DRIVER_MOTOR_CFG_H_
-
-
-
-#define MOTOR_LEFT {PORT_A,PIN_0}
-#define MOTOR_RIGHT {PORT_A,PIN_1}
-
-#endif
