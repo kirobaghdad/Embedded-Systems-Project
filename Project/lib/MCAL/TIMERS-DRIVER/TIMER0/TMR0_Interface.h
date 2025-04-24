@@ -1,6 +1,6 @@
 #ifndef _TMR0_INTERFACE_H
 #define _TMR0_INTERFACE_H
-
+#include "std_types.h"
 #include "TIMERS-DRIVER/TIMER0/TMR0_Config.h"
 
 // Initialize the timer with configuration

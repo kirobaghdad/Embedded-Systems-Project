@@ -1,6 +1,7 @@
 #include "TIMERS-DRIVER/TIMER1/TMR1_Config.h"
 #include "TIMERS-DRIVER/TIMER1/TMR1_Interface.h"
 #include "TIMERS-DRIVER/TIMER1/TMR1_Address.h"
+#include <avr/interrupt.h>
 
 static void (*TMR1_CallbackA)(void) = 0;
 static void (*TMR1_CallbackB)(void) = 0;

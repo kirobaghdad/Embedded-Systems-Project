@@ -1,6 +1,6 @@
 #ifndef _TMR2_ADDRESS_H
 #define _TMR2_ADDRESS_H
-#include "TYPES.h"
+#include "std_types.h"
 #include "GLOBAL-INTERRUPT-DRIVER/global_interrupt_register.h"
 
 // Memory addresses for Timer2 registers

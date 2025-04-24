@@ -3,19 +3,15 @@
 #include "ULTRASONIC-HANDLER/ultrasonic_int.h"
 #include "ULTRASONIC-HANDLER/ultrasonic_cfg.h"
 #include "DIO-DRIVER/dio_int.h"
-
+#include "ICU-HANDLER/ICU_int.h"
 uint8_t g_edgeCount = (INITIAL_VALUE_ZERO);
 uint16_t g_T_edge = (INITIAL_VALUE_ZERO);
 
-ICU_ConfigType ICU_conf = {
-    F_CPU_8,
-    RAISING};
-
 void Ultrasonic_init(void)
 {
-    ICU_init(&ICU_conf);
+    ICU_Init();
 
-    ICU_setCallBack(Ultrasonic_edgeProcessing);
+    ICU_SetCallback(Ultrasonic_edgeProcessing);
 
     DIO_u8SetPinMode(Ultrasonic_TRIGGER_PORT, Ultrasonic_TRIGGER_PIN, OUTPUT);
 }
@@ -54,13 +50,13 @@ void Ultrasonic_edgeProcessing(void)
     switch (g_edgeCount)
     {
     case 1:
-        ICU_clearTimerValue();
-        ICU_setEdgeDetectionType(FALLING);
+        ICU_ClearTimer();
+        ICU_SetEdgeDetection(ICU_EDGE_FALLING);
         break;
     case 2:
-        g_T_edge = ICU_getInputCaptureValue();
-        ICU_clearTimerValue();
-        ICU_setEdgeDetectionType(RAISING);
+        g_T_edge = ICU_GetCaptureValue();
+        ICU_ClearTimer();
+        ICU_SetEdgeDetection(ICU_EDGE_RISING);
         g_edgeCount = (INITIAL_VALUE_ZERO);
         break;
     }

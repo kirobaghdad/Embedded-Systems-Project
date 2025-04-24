@@ -1,4 +1,4 @@
-#include "TYPES.h"
+#include "std_types.h"
 #ifndef I2C_CONFIGURATION_H_
 #define I2C_CONFIGURATION_H_
 
@@ -27,7 +27,5 @@ typedef enum
 #define I2C_DEFAULT_CLOCK I2C_CLOCK_100KHZ
 #define I2C_DEFAULT_PRESCALER I2C_PRESCALER_64
 #define I2C_DEFAULT_SLAVE_ADDR 0x01 // Default slave address
-
-
 
 #endif /* I2C_CONFIGURATION_H_ */

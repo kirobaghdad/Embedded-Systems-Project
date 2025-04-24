@@ -1,7 +1,7 @@
 
 #ifndef MCAL_ADC_DRIVER_ADC_INT_H_
 #define MCAL_ADC_DRIVER_ADC_INT_H_
-#include "TYPES.h"
+#include "std_types.h"
 
 /*modes to use with ADC_TRIGGERING_MODE*/
 #define AUTO_TRIGGER 0

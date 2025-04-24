@@ -1,7 +1,7 @@
-#include "TYPES.h"
+#include "std_types.h"
 #include "../global_interrupt_int.h"
 #include "../global_interrupt_register.h"
-
+#include "CPU_Configuration.h"
 void GLOBAL_INTERRUPT_vidGlobalInterruptEnable(uint8_t mode)
 {
 	switch (mode)

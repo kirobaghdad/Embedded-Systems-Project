@@ -1,7 +1,7 @@
 
 #ifndef _TMR1_INTERFACE_H
 #define _TMR1_INTERFACE_H
-#include "TYPES.h"
+#include "std_types.h"
 #include "TIMERS-DRIVER/TIMER1/TMR1_config.h"
 
 // Initialize Timer1 with configuration options

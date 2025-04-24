@@ -15,6 +15,10 @@
     "cpu_configuration.h": "c",
     "dio_int.h": "c",
     "motor_cfg.h": "c",
-    "ultrasonic_cfg.h": "c"
+    "ultrasonic_cfg.h": "c",
+    "icu_int.h": "c",
+    "tmr1_address.h": "c",
+    "icu_cfg.h": "c",
+    "std_types.h": "c"
   }
 }

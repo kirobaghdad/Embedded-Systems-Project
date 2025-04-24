@@ -1,7 +1,7 @@
 #ifndef _TMR0_ADDRESS_H
 #define _TMR0_ADDRESS_H
 #include "GLOBAL-INTERRUPT-DRIVER/global_interrupt_register.h"
-#include "TYPES.h"
+#include "std_types.h"
 
 // Memory addresses for Timer0 registers
 #define TCCR0_REG (*((volatile uint8_t *)0x53)) // Timer/Counter Control Register

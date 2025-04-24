@@ -1,7 +1,7 @@
 #ifndef BLUETOOTH_INT_H_
 #define BLUETOOTH_INT_H_
 
-#include "TYPES.h"
+#include "std_types.h"
 #include "USART-DRIVER/USART_Interface.h"
 
 // ****** Functions Prototypes ****** //

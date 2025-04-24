@@ -1,4 +1,4 @@
-#include "TYPES.h"
+#include "std_types.h"
 #ifndef _TMR2_INTERFACE_H
 #define _TMR2_INTERFACE_H
 

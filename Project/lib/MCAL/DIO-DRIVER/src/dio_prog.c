@@ -1,4 +1,5 @@
-#include "TYPES.h"
+#include "std_types.h"
+#include "CPU_Configuration.h"
 #include "DIO-DRIVER/dio_register.h"
 #include "DIO-DRIVER/dio_int.h"
 

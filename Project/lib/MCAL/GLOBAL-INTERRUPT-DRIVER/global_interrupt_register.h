@@ -1,7 +1,7 @@
-#include "TYPES.h"
+#include "std_types.h"
 #ifndef MCAL_GLOBAL_INTERRUPT_DRIVER_GLOBAL_INTERRUPT_REGISTER_H_
 #define MCAL_GLOBAL_INTERRUPT_DRIVER_GLOBAL_INTERRUPT_REGISTER_H_
 
-#define SREG   (*((volatile uint8_t*)0x5F))
+#define SREG (*((volatile uint8_t *)0x5F))
 
 #endif

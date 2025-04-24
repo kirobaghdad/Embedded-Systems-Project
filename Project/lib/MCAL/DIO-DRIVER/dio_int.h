@@ -1,6 +1,6 @@
 #ifndef MCAL_DIO_DRIVER_DIO_INT_H_
 #define MCAL_DIO_DRIVER_DIO_INT_H_
-#include "TYPES.h"
+#include "std_types.h"
 
 /*
  * macros to be used in port_id param

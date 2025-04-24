@@ -1,6 +1,7 @@
 #ifndef _ULTRASONIC_INT_H_
 #define _ULTRASONIC_INT_H_
-#include "TYPES.h"
+#include "std_types.h"
+
 void Ultrasonic_init(void);
 void Ultrasonic_Trigger(void);
 uint16_t Ultrasonic_readDistance(void);
