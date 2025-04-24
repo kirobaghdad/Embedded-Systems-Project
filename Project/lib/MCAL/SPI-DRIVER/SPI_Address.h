@@ -1,27 +1,26 @@
 #ifndef SPI_ADDRESS_H_
 #define SPI_ADDRESS_H_
+
 #include "std_types.h"
 
-// SPI Control Register
-#define SPCR    (*(volatile uint8_t*)0x2D)
-// SPI Status Register
-#define SPSR    (*(volatile uint8_t*)0x2E)
-// SPI Data Register
-#define SPDR    (*(volatile uint8_t*)0x2F)
+// SPI Registers
+#define SPCR (*((volatile uint8_t *)0x4C)) // SPI Control Register
+#define SPSR (*((volatile uint8_t *)0x4D)) // SPI Status Register
+#define SPDR (*((volatile uint8_t *)0x4E)) // SPI Data Register
 
-// Bit positions in SPCR
-#define SPR0    0
-#define SPR1    1
-#define CPHA    2
-#define CPOL    3
-#define MSTR    4
-#define DORD    5
-#define SPE     6
-#define SPIE    7
+// SPCR Bit Positions
+#define SPR0 0 // Clock Rate Select 0
+#define SPR1 1 // Clock Rate Select 1
+#define CPHA 2 // Clock Phase
+#define CPOL 3 // Clock Polarity
+#define MSTR 4 // Master/Slave Select
+#define DORD 5 // Data Order
+#define SPE 6  // SPI Enable
+#define SPIE 7 // SPI Interrupt Enable
 
-// Bit positions in SPSR
-#define SPI2X   0
-#define WCOL    6
-#define SPIF    7
+// SPSR Bit Positions
+#define SPI2X 0 // Double SPI Speed
+#define WCOL 6  // Write Collision Flag
+#define SPIF 7  // SPI Interrupt Flag
 
-#endif /* SPI_ADDRESS_H_ */
+#endif /* MCAL_SPI_DRIVER_SPI_REGISTER_H_ */

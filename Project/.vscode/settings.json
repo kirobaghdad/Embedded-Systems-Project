@@ -19,6 +19,9 @@
     "icu_int.h": "c",
     "tmr1_address.h": "c",
     "icu_cfg.h": "c",
-    "std_types.h": "c"
+    "std_types.h": "c",
+    "i2c_address.h": "c",
+    "tmr0_config.h": "c",
+    "tmr2_config.h": "c"
   }
 }

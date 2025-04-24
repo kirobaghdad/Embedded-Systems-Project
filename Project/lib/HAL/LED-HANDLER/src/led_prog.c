@@ -6,7 +6,7 @@
 uint8_t LED_u8LedOn(uint8_t port_id, uint8_t led_pin)
 {
 	uint8_t IsOut;
-	uint8_t error_status = DIO_u8IsPinOutPut(port_id, led_pin, &IsOut);
+	uint8_t error_status = DIO_u8IsPinOutput(port_id, led_pin, &IsOut);
 	if (error_status == E_OK)
 	{
 		if (IsOut == 0)
@@ -18,7 +18,7 @@ uint8_t LED_u8LedOn(uint8_t port_id, uint8_t led_pin)
 uint8_t LED_u8LedOff(uint8_t port_id, uint8_t led_pin)
 {
 	uint8_t IsOut;
-	uint8_t error_status = DIO_u8IsPinOutPut(port_id, led_pin, &IsOut);
+	uint8_t error_status = DIO_u8IsPinOutput(port_id, led_pin, &IsOut);
 	if (error_status == E_OK)
 	{
 		if (IsOut == 0)
@@ -31,7 +31,7 @@ uint8_t LED_u8LedToggle(uint8_t port_id, uint8_t led_pin)
 {
 	uint8_t value;
 	uint8_t IsOut;
-	uint8_t error_status = DIO_u8IsPinOutPut(port_id, led_pin, &IsOut);
+	uint8_t error_status = DIO_u8IsPinOutput(port_id, led_pin, &IsOut);
 	if (error_status == E_OK)
 	{
 		if (IsOut == 0)
@@ -50,7 +50,7 @@ uint8_t LED_u8LedToggle(uint8_t port_id, uint8_t led_pin)
 uint8_t LED_u8LedBlink(uint8_t port_id, uint8_t led_pin, uint16_t delay_time_ms)
 {
 	uint8_t IsOut;
-	uint8_t error_status = DIO_u8IsPinOutPut(port_id, led_pin, &IsOut);
+	uint8_t error_status = DIO_u8IsPinOutput(port_id, led_pin, &IsOut);
 	if (error_status == E_OK)
 	{
 		if (IsOut == 0)
@@ -69,7 +69,7 @@ uint8_t LED_u8LedBlink(uint8_t port_id, uint8_t led_pin, uint16_t delay_time_ms)
 uint8_t LED_u8LedPortOn(uint8_t port_id)
 {
 	uint8_t IsOut;
-	uint8_t error_status = DIO_u8IsPinOutPut(port_id, PIN_0, &IsOut);
+	uint8_t error_status = DIO_u8IsPinOutput(port_id, PIN_0, &IsOut);
 	if (error_status == E_OK)
 	{
 		if (IsOut == 0)
@@ -81,7 +81,7 @@ uint8_t LED_u8LedPortOn(uint8_t port_id)
 uint8_t LED_u8LedPortOff(uint8_t port_id)
 {
 	uint8_t IsOut;
-	uint8_t error_status = DIO_u8IsPinOutPut(port_id, PIN_0, &IsOut);
+	uint8_t error_status = DIO_u8IsPinOutput(port_id, PIN_0, &IsOut);
 	if (error_status == E_OK)
 	{
 		if (IsOut == 0)
@@ -94,7 +94,7 @@ uint8_t LED_u8LedPortToggle(uint8_t port_id)
 {
 	uint8_t value;
 	uint8_t IsOut;
-	uint8_t error_status = DIO_u8IsPinOutPut(port_id, PIN_0, &IsOut);
+	uint8_t error_status = DIO_u8IsPinOutput(port_id, PIN_0, &IsOut);
 	if (error_status == E_OK)
 	{
 		if (IsOut == 0)
@@ -113,7 +113,7 @@ uint8_t LED_u8LedPortToggle(uint8_t port_id)
 uint8_t LED_u8LedPortBlink(uint8_t port_id, uint16_t delay_time_ms)
 {
 	uint8_t IsOut;
-	uint8_t error_status = DIO_u8IsPinOutPut(port_id, PIN_0, &IsOut);
+	uint8_t error_status = DIO_u8IsPinOutput(port_id, PIN_0, &IsOut);
 	if (error_status == E_OK)
 	{
 		if (IsOut == 0)

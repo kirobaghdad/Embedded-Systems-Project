@@ -1,54 +1,51 @@
-
-#ifndef MCAL_ADC_DRIVER_ADC_INT_H_
-#define MCAL_ADC_DRIVER_ADC_INT_H_
+#ifndef ADC_INT_H_
+#define ADC_INT_H_
 #include "std_types.h"
 
-/*modes to use with ADC_TRIGGERING_MODE*/
+/* Triggering modes for ADC_TRIGGERING_MODE */
 #define AUTO_TRIGGER 0
 #define SOFTWARE_TRIGGER 1
 
-/*modes to use with ADC_READING_NO_OF_BITS*/
+/* Resolution modes for ADC_READING_NO_OF_BITS */
 #define _8_BIT_MODE 0
-#define _16_BIT_MODE 1
+#define _10_BIT_MODE 1
 
-/*modes to use with ADC_READING_TECHNIQUE*/
+/* Reading techniques for ADC_READING_TECHNIQUE */
 #define INTERRUPT_MODE 0
-#define BOOLING_MODE 1
+#define POLLING_MODE 1
 
-/*adcs to use with the adc_pin param*/
+/* ADC channels (mapped to PC0–PC5) */
 #define ADC_0 (uint8_t)0
 #define ADC_1 (uint8_t)1
 #define ADC_2 (uint8_t)2
 #define ADC_3 (uint8_t)3
 #define ADC_4 (uint8_t)4
 #define ADC_5 (uint8_t)5
-#define ADC_6 (uint8_t)6
-#define ADC_7 (uint8_t)7
-#define ADC_ALL (uint8_t)8
 
-/*modes to use with set auto trigger mode param*/
-#define INT_0 (uint8_t)1
+/* Auto-trigger sources */
+#define FREE_RUNNING 0
+#define ANALOG_COMPARATOR 1
+#define EXTERNAL_INT0 2
+#define TIMER0_COMPARE 3
+#define TIMER0_OVERFLOW 4
+#define TIMER1_COMPARE_B 5
+#define TIMER1_OVERFLOW 6
+#define TIMER1_CAPTURE 7
 
-/*adcs to use with the voltage_reference param*/
-#define INTERNAL_2_56_ (uint8_t)0
-#define VCC (uint8_t)1
-#define AREF_VOLTAGE (uint8_t)2
-
-void ADC_vidAdcInit(uint8_t voltage_reference);
-
-void ADC_vidAdcPinInit(uint8_t adc_pin);
-
-void ADC_vidAdcGetRead(uint8_t adc_pin);
-
-void ADC_vidGetAutoTriggerRead();
-
-void ADC_VIDSetAutoTriggerMode(uint8_t mode);
+/* Voltage reference options */
+#define AREF_VOLTAGE 0
+#define VCC 1
+#define INTERNAL_2_56V 2
 
 /*
-    --TODO: Complete This Function
-    void ADC_vidSetReadingVariable(uint16_t *adc_read);
-*/
-
+ * Function prototypes
+ */
+void ADC_vidAdcInit(uint8_t voltage_reference);
+void ADC_vidAdcPinInit(uint8_t adc_pin);
+void ADC_vidAdcGetRead(uint8_t adc_pin);
+void ADC_vidGetAutoTriggerRead(void);
+void ADC_vidSetAutoTriggerMode(uint8_t mode);
+void ADC_vidSetReadingVariable(uint16_t *adc_read);
 void ADC_vidSetCallBack(void (*func)(void));
 
-#endif
+#endif /* MCAL_ADC_DRIVER_ADC_INT_H_ */

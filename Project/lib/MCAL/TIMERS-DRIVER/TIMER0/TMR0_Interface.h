@@ -1,18 +1,19 @@
-#ifndef _TMR0_INTERFACE_H
-#define _TMR0_INTERFACE_H
+#ifndef TMR0_INTERFACE_H_
+#define TMR0_INTERFACE_H_
+
 #include "std_types.h"
 #include "TIMERS-DRIVER/TIMER0/TMR0_Config.h"
 
-// Initialize the timer with configuration
-void TMR0_Init(void);
+// Initialize Timer0 with configured mode and prescaler
+uint8_t TMR0_Init(void);
 
-// Start the timer for a given time in milliseconds
-void TMR0_Start(uint16_t milliseconds);
+// Start Timer0 for a given time in milliseconds
+uint8_t TMR0_Start(uint16_t milliseconds);
 
-// Stop the timer
-void TMR0_Stop(void);
+// Stop Timer0
+uint8_t TMR0_Stop(void);
 
-// Set a callback function to be called after the timer completes
-void TMR0_SetCallback(void (*callbackFunc)(void));
+// Set callback function for timer interrupts
+uint8_t TMR0_SetCallback(void (*callbackFunc)(void));
 
-#endif /* _TMR0_INTERFACE_H */
+#endif /* MCAL_TMR0_DRIVER_TMR0_INT_H_ */

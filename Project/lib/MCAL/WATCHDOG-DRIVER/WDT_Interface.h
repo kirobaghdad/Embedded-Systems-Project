@@ -1,16 +1,16 @@
+#ifndef WDT_INTERFACE_H_
+#define WDT_INTERFACE_H_
+
 #include "std_types.h"
-#ifndef _WDT_INTERFACE_H
-#define _WDT_INTERFACE_H
+#include "WATCHDOG-DRIVER/WDT_Config.h"
 
-#include "WDT_Config.h"
-
-// Initialize the Watchdog Timer with a specified timeout (or default from WDT_Config.h)
-void WDT_Init(uint8_t timeout);
+// Initialize the Watchdog Timer with a specified timeout
+uint8_t WDT_Init(WDT_Timeout_t timeout);
 
 // Reset ("kick") the Watchdog Timer to prevent a system reset
-void WDT_Reset(void);
+uint8_t WDT_Reset(void);
 
 // Disable the Watchdog Timer
-void WDT_Disable(void);
+uint8_t WDT_Disable(void);
 
-#endif /* _WDT_INTERFACE_H */
+#endif /* MCAL_WDT_DRIVER_WDT_INT_H_ */

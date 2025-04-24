@@ -3,7 +3,7 @@
 uint8_t SWITCH_u8InitializeSwitch(uint8_t port_id, uint8_t switch_pin)
 {
 	uint8_t IsInput;
-	uint8_t error_status = DIO_u8IsPinOutPut(port_id, switch_pin, &IsInput);
+	uint8_t error_status = DIO_u8IsPinOutput(port_id, switch_pin, &IsInput);
 	if (error_status == E_OK)
 	{
 		if (IsInput == 1)
@@ -15,7 +15,7 @@ uint8_t SWITCH_u8InitializeSwitch(uint8_t port_id, uint8_t switch_pin)
 uint8_t SWITCH_u8InitializeSwitchPort(uint8_t port_id)
 {
 	uint8_t IsInput;
-	uint8_t error_status = DIO_u8IsPinOutPut(port_id, PIN_4, &IsInput);
+	uint8_t error_status = DIO_u8IsPinOutput(port_id, PIN_4, &IsInput);
 	if (error_status == E_OK)
 	{
 		if (IsInput == 1)

@@ -1,122 +1,173 @@
+#include "std_types.h"
+#include "DIO-DRIVER/dio_int.h"
+#include "GLOBAL-INTERRUPT-DRIVER/global_interrupt_int.h"
+#include "TIMERS-DRIVER/TIMER1/tmr1_config.h"
 #include "ICU-HANDLER/ICU_cfg.h"
 #include "ICU-HANDLER/ICU_int.h"
 
-#include <avr/interrupt.h>
+// Static callback pointer
+static void (*ICU_CallbackPtr)(void) = NULL_PTR;
 
-static void (*ICU_CallbackPtr)(void) = 0;
+// Helper macros for validation
+#define IS_VALID_EDGE(edge) ((edge) == ICU_EDGE_FALLING || (edge) == ICU_EDGE_RISING)
+#define IS_VALID_VALUE_PTR(ptr) ((ptr) != NULL_PTR)
+#define IS_VALID_CALLBACK(func) ((func) != NULL_PTR)
 
-void ICU_Init(void)
+/*
+ * Initialize the ICU
+ */
+uint8_t ICU_Init(void)
 {
+    // Configure ICP1 (PB0) as input
+    uint8_t status = DIO_u8SetPinMode(PORT_B, PIN_0, INPUT);
+    if (status != E_OK)
+        return E_NOK;
 
-    CLR_BIT(DDRB, PB0);
+    // Clear Timer1 control registers
+    TCCR1A = 0;
+    TCCR1B = 0;
 
-    TCCR1A_REG = 0;
-
-    TCCR1B_REG &= ~((1 << ICNC1) | (1 << ICES1) | (1 << WGM13) | (1 << WGM12) | (1 << CS12) | (1 << CS11) | (1 << CS10));
-
-#if (ICU_NOISE_CANCELER_ENABLE == 1)
-    SET_BIT(TCCR1B_REG, ICNC1);
+    // Configure noise canceler
+#if ICU_NOISE_CANCELER_ENABLE == 1
+    SET_BIT(TCCR1B, ICNC1);
+#else
+    CLR_BIT(TCCR1B, ICNC1);
 #endif
 
-#if (ICU_DEFAULT_INITIAL_EDGE == ICU_EDGE_RISING)
-    SET_BIT(TCCR1B_REG, ICES1);
-
+    // Configure initial edge detection
+#if ICU_DEFAULT_INITIAL_EDGE == ICU_EDGE_RISING
+    SET_BIT(TCCR1B, ICES1);
+#else
+    CLR_BIT(TCCR1B, ICES1);
 #endif
 
+    // Set prescaler
     switch (ICU_DEFAULT_PRESCALER)
     {
     case TMR1_PRESCALER_NO:
-        SET_BIT(TCCR1B_REG, CS10);
+        SET_BIT(TCCR1B, CS10);
         break;
     case TMR1_PRESCALER_8:
-        SET_BIT(TCCR1B_REG, CS11);
+        SET_BIT(TCCR1B, CS11);
         break;
     case TMR1_PRESCALER_64:
-        SET_BIT(TCCR1B_REG, CS10);
-        SET_BIT(TCCR1B_REG, CS11);
+        SET_BIT(TCCR1B, CS10);
+        SET_BIT(TCCR1B, CS11);
         break;
     case TMR1_PRESCALER_256:
-        SET_BIT(TCCR1B_REG, CS12);
+        SET_BIT(TCCR1B, CS12);
         break;
     case TMR1_PRESCALER_1024:
-        SET_BIT(TCCR1B_REG, CS10);
-        SET_BIT(TCCR1B_REG, CS12);
+        SET_BIT(TCCR1B, CS10);
+        SET_BIT(TCCR1B, CS12);
         break;
+    default:
+        return E_NOK;
     }
 
-    TCNT1_REG = 0;
+    // Reset timer counter
+    TCNT1 = 0;
 
-    SET_BIT(TIFR_REG, ICF1);
+    // Clear input capture flag
+    SET_BIT(TIFR1, ICF1);
+
+    // Enable global interrupts
+    return GLOBAL_INTERRUPT_vidGlobalInterruptEnable(ENABLED);
 }
 
-void ICU_DeInit(void)
+/*
+ * Deinitialize the ICU
+ */
+uint8_t ICU_DeInit(void)
 {
+    // Stop Timer1 by clearing clock select bits
+    CLR_BIT(TCCR1B, CS10);
+    CLR_BIT(TCCR1B, CS11);
+    CLR_BIT(TCCR1B, CS12);
 
-    CLR_BIT(TCCR1B_REG, CS10);
-    CLR_BIT(TCCR1B_REG, CS11);
-    CLR_BIT(TCCR1B_REG, CS12);
+    // Disable input capture interrupt
+    CLR_BIT(TIMSK1, ICIE1);
 
-    CLR_BIT(TIMSK_REG, ICIE1);
+    // Clear callback
+    ICU_CallbackPtr = NULL_PTR;
 
-    ICU_CallbackPtr = 0;
+    return E_OK;
 }
 
-void ICU_SetEdgeDetection(ICU_EdgeType edge)
+/*
+ * Set edge detection
+ */
+uint8_t ICU_SetEdgeDetection(ICU_EdgeType edge)
 {
+    if (!IS_VALID_EDGE(edge))
+        return E_NOK;
 
     if (edge == ICU_EDGE_RISING)
-    {
-        SET_BIT(TCCR1B_REG, ICES1);
-    }
+        SET_BIT(TCCR1B, ICES1);
     else
+        CLR_BIT(TCCR1B, ICES1);
+
+    return E_OK;
+}
+
+/*
+ * Get the captured timer value
+ */
+uint16_t ICU_GetCaptureValue()
+{
+    return ICR1;
+}
+
+/*
+ * Set callback function
+ */
+uint8_t ICU_SetCallback(void (*callbackFunc)(void))
+{
+    if (!IS_VALID_CALLBACK(callbackFunc))
     {
-        CLR_BIT(TCCR1B_REG, ICES1);
+        CLR_BIT(TIMSK1, ICIE1);
+        ICU_CallbackPtr = NULL_PTR;
+        return E_NOK;
     }
-}
 
-uint16_t ICU_GetCaptureValue(void)
-{
-    return ICR1_REG;
-}
-
-void ICU_SetCallback(void (*callbackFunc)(void))
-{
     ICU_CallbackPtr = callbackFunc;
-
-    if (ICU_CallbackPtr != 0)
-    {
-        SET_BIT(TIMSK_REG, ICIE1);
-
-        sei();
-    }
-    else
-    {
-
-        CLR_BIT(TIMSK_REG, ICIE1);
-    }
+    SET_BIT(TIMSK1, ICIE1);
+    return E_OK;
 }
 
-void ICU_ClearTimer(void)
+/*
+ * Clear Timer1 counter
+ */
+uint8_t ICU_ClearTimer(void)
 {
-    TCNT1_REG = 0;
+    TCNT1 = 0;
+    return E_OK;
 }
 
-void ICU_EnableInterrupt(void)
+/*
+ * Enable input capture interrupt
+ */
+uint8_t ICU_EnableInterrupt(void)
 {
-    SET_BIT(TIMSK_REG, ICIE1);
+    SET_BIT(TIMSK1, ICIE1);
+    return E_OK;
 }
 
-void ICU_DisableInterrupt(void)
+/*
+ * Disable input capture interrupt
+ */
+uint8_t ICU_DisableInterrupt(void)
 {
-    CLR_BIT(TIMSK_REG, ICIE1);
+    CLR_BIT(TIMSK1, ICIE1);
+    return E_OK;
 }
 
-ISR(TIMER1_CAPT_vect)
+/*
+ * Timer1 Input Capture Interrupt Service Routine
+ */
+void __vector_10(void) __attribute__((signal));
+void __vector_10(void)
 {
-
-    if (ICU_CallbackPtr != 0)
-    {
-
+    if (ICU_CallbackPtr != NULL_PTR)
         ICU_CallbackPtr();
-    }
 }

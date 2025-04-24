@@ -1,77 +1,106 @@
+#include "std_types.h"
+#include "DIO-DRIVER/dio_int.h"
 #include "SPI-DRIVER/SPI_Configuration.h"
 #include "SPI-DRIVER/SPI_Interface.h"
 #include "SPI-DRIVER/SPI_Address.h"
-#include "DIO-DRIVER/dio_int.h"
-void SPI_InitMaster(SPI_Mode_t mode, SPI_DataOrder_t dataOrder, SPI_ClockRate_t clockRate)
+
+// Helper macros for input validation
+#define IS_VALID_MODE(mode) ((mode) <= SPI_MODE_3)
+#define IS_VALID_DATA_ORDER(order) ((order) <= SPI_LSB_FIRST)
+#define IS_VALID_CLOCK_RATE(rate) ((rate) <= SPI_CLOCK_DIV128)
+#define IS_VALID_DATA_PTR(ptr) ((ptr) != NULL_PTR)
+
+// Helper function to wait for SPIF and check WCOL
+static uint8_t SPI_CheckStatus(void)
 {
-	// Set MOSI, SCK as output, MISO as input
-	DIO_u8SetPinMode(PORT_B, PIN_5, OUTPUT);
-	DIO_u8SetPinMode(PORT_B, PIN_7, OUTPUT);
-	DIO_u8SetPinMode(PORT_B, PIN_6, INPUT); // MISO as input
-
-	// Set SS as output (must be held high in master mode)
-	DIO_u8SetPinMode(PORT_B, PIN_4, OUTPUT);
-
-	// Enable SPI, set as master, configure mode, data order, and clock rate
-	SET_BIT(SPCR, SPE);
-	SET_BIT(SPCR, MSTR);
-
-	SPCR |= (dataOrder << DORD) | (mode << CPHA) | (clockRate & 0x03);
-
-	// Set SPI2X in SPSR if needed for double speed
-	if (clockRate & 0x04)
+	while (!(SPSR & (1 << SPIF))) // Wait for SPIF
 	{
+		asm("NOP");
+	}
+	return (SPSR & (1 << WCOL)) ? E_NOK : E_OK; // Check write collision
+}
+
+/*
+ * Initialize SPI in master mode
+ */
+uint8_t SPI_InitMaster(SPI_Mode_t mode, SPI_DataOrder_t dataOrder, SPI_ClockRate_t clockRate)
+{
+	if (!IS_VALID_MODE(mode) || !IS_VALID_DATA_ORDER(dataOrder) || !IS_VALID_CLOCK_RATE(clockRate))
+		return E_NOK;
+
+	// Initialize SPI pins
+	DIO_u8SetPinMode(SPI_MOSI_PORT, SPI_MOSI_PIN, OUTPUT); // MOSI output
+	DIO_u8SetPinMode(SPI_SCK_PORT, SPI_SCK_PIN, OUTPUT);   // SCK output
+	DIO_u8SetPinMode(SPI_MISO_PORT, SPI_MISO_PIN, INPUT);  // MISO input
+	DIO_u8SetPinMode(SPI_SS_PORT, SPI_SS_PIN, OUTPUT);	   // SS output
+	DIO_u8SetPinValue(SPI_SS_PORT, SPI_SS_PIN, HIGH);	   // SS high
+
+	// Configure SPCR: enable SPI, master mode, mode, data order, clock rate
+	SPCR = (1 << SPE) | (1 << MSTR) | (dataOrder << DORD) | (mode << CPHA) | (clockRate & 0x03);
+
+	// Configure SPI2X in SPSR
+	if (clockRate & 0x04) // Check SPI2X bit
 		SET_BIT(SPSR, SPI2X);
-	}
 	else
-	{
 		CLR_BIT(SPSR, SPI2X);
-	}
+
+	return E_OK;
 }
 
-void SPI_InitSlave(SPI_Mode_t mode, SPI_DataOrder_t dataOrder)
+/*
+ * Initialize SPI in slave mode
+ */
+uint8_t SPI_InitSlave(SPI_Mode_t mode, SPI_DataOrder_t dataOrder)
 {
-	// Set MISO as output, MOSI, SCK, and SS as input
-	DIO_u8SetPinMode(PORT_B, PIN_6, OUTPUT); // MISO as output
-	DIO_u8SetPinMode(PORT_B, PIN_5, INPUT);
-	DIO_u8SetPinMode(PORT_B, PIN_7, INPUT);
-	DIO_u8SetPinMode(PORT_B, PIN_4, INPUT); // MOSI, SCK, and SS as input
+	if (!IS_VALID_MODE(mode) || !IS_VALID_DATA_ORDER(dataOrder))
+		return E_NOK;
 
-	// Enable SPI, set as slave, configure mode, and data order
-	SET_BIT(SPCR, SPE);
+	// Initialize SPI pins
+	DIO_u8SetPinMode(SPI_MISO_PORT, SPI_MISO_PIN, OUTPUT); // MISO output
+	DIO_u8SetPinMode(SPI_MOSI_PORT, SPI_MOSI_PIN, INPUT);  // MOSI input
+	DIO_u8SetPinMode(SPI_SCK_PORT, SPI_SCK_PIN, INPUT);	   // SCK input
+	DIO_u8SetPinMode(SPI_SS_PORT, SPI_SS_PIN, INPUT);	   // SS input
 
-	SPCR |= (dataOrder << DORD) | (mode << CPHA);
+	// Configure SPCR: enable SPI, slave mode, mode, data order
+	SPCR = (1 << SPE) | (dataOrder << DORD) | (mode << CPHA);
+
+	return E_OK;
 }
 
-void SPI_Transmit(uint8_t data)
+/*
+ * Transmit data byte
+ */
+uint8_t SPI_Transmit(uint8_t data)
 {
-	// Start transmission by writing data to SPDR
-	SPDR = data;
-
-	// Wait for transmission to complete (SPIF set in SPSR)
-	while (!(SPSR & (1 << SPIF)))
-		;
+	SPDR = data; // Start transmission
+	return SPI_CheckStatus();
 }
 
-uint8_t SPI_Receive(void)
+/*
+ * Receive data byte
+ */
+uint8_t SPI_Receive(uint8_t *data)
 {
-	// Wait for reception to complete (SPIF set in SPSR)
-	while (!(SPSR & (1 << SPIF)))
-		;
+	if (!IS_VALID_DATA_PTR(data))
+		return E_NOK;
 
-	// Return the received data from SPDR
-	return SPDR;
+	uint8_t status = SPI_CheckStatus();
+	if (status == E_OK)
+		*data = SPDR; // Read received data
+	return status;
 }
 
-uint8_t SPI_Transceive(uint8_t data)
+/*
+ * Transmit and receive data byte
+ */
+uint8_t SPI_Transceive(uint8_t data, uint8_t *received_data)
 {
-	// Load data into the SPI data register
-	SPDR = data;
+	if (!IS_VALID_DATA_PTR(received_data))
+		return E_NOK;
 
-	// Wait for transmission/reception to complete
-	while (!(SPSR & (1 << SPIF)))
-		;
-
-	// Return the data received during transmission
-	return SPDR;
+	SPDR = data; // Start transmission
+	uint8_t status = SPI_CheckStatus();
+	if (status == E_OK)
+		*received_data = SPDR; // Read received data
+	return status;
 }

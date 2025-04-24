@@ -5,6 +5,11 @@
 #define NULL_CHAR ('\0')
 #define INITIAL_VALUE_ZERO (0)
 
+/*
+ * Error status codes
+ */
+#define E_OK (uint8_t)0
+#define E_NOK (uint8_t)1
 
 typedef float float32_t;
 typedef double float64_t;

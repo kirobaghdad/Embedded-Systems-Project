@@ -1,21 +1,28 @@
+#ifndef TMR0_CONFIGURATION_H_
+#define TMR0_CONFIGURATION_H_
+
 #include "CPU_Configuration.h"
-#ifndef _TMR0_CONFIG_H
-#define _TMR0_CONFIG_H
 
-// Define Timer modes
-#define TMR0_MODE_NORMAL 0
-#define TMR0_MODE_CTC 1
-#define TMR0_MODE_PWM 2
+// Timer0 Modes
+typedef enum
+{
+    TMR0_MODE_NORMAL = 0, // Normal mode
+    TMR0_MODE_CTC = 1     // Clear Timer on Compare Match
+} TMR0_Mode_t;
 
-// Define Clock Source (Prescaler values)
-#define TMR0_PRESCALER_NO 1
-#define TMR0_PRESCALER_8 2
-#define TMR0_PRESCALER_64 3
-#define TMR0_PRESCALER_256 4
-#define TMR0_PRESCALER_1024 5
+// Timer0 Clock Source (Prescaler)
+typedef enum
+{
+    TMR0_PRESCALER_NO = 0b001,  // No prescaler (fosc/1)
+    TMR0_PRESCALER_8 = 0b010,   // fosc/8
+    TMR0_PRESCALER_64 = 0b011,  // fosc/64
+    TMR0_PRESCALER_256 = 0b100, // fosc/256
+    TMR0_PRESCALER_1024 = 0b101 // fosc/1024
+} TMR0_Prescaler_t;
 
-// Choose the timer mode and prescaler for your configuration
+// Default Configuration
 #define TMR0_MODE TMR0_MODE_CTC
 #define TMR0_PRESCALER TMR0_PRESCALER_64
+#define TMR0_DEFAULT_TICKS 250 // Default OCR0A value for reasonable interrupt frequency
 
-#endif /* _TMR0_CONFIG_H */
+#endif /* MCAL_TMR0_DRIVER_TMR0_CONFIG_H_ */

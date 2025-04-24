@@ -1,106 +1,25 @@
+#include "std_types.h"
+#include "CPU_Configuration.h"
+#include "GLOBAL-INTERRUPT-DRIVER/global_interrupt_int.h"
 #include "TIMERS-DRIVER/TIMER0/TMR0_Config.h"
 #include "TIMERS-DRIVER/TIMER0/TMR0_Interface.h"
 #include "TIMERS-DRIVER/TIMER0/TMR0_Address.h"
 
-// Pointer to the user-defined callback function
-static void (*TMR0_Callback)(void) = 0;
-
-// Number of compare matches required to reach the desired time
+// Static variables
+static void (*TMR0_Callback)(void) = NULL_PTR;
 static uint16_t TMR0_RequiredMatches = 0;
-
-// Counter to track the number of compare matches
 static uint16_t TMR0_CurrentMatches = 0;
 
-// Function prototypes
-static uint16_t TMR0_CalculateTicks(uint16_t milliseconds);
+// Helper macros for validation
+#define IS_VALID_MILLISECONDS(ms) ((ms) > 0)
+#define IS_VALID_CALLBACK(func) ((func) != NULL_PTR)
 
-void TMR0_Init(void)
+// Helper function to calculate ticks
+static uint8_t TMR0_CalculateTicks(uint16_t milliseconds, uint16_t *ticks, uint16_t *matches)
 {
-// Set mode based on configuration
-#if TMR0_MODE == TMR0_MODE_NORMAL
-	CLR_BIT(TCCR0_REG, TCCR0_WGM00);
-	CLR_BIT(TCCR0_REG, TCCR0_WGM01); // Normal mode
-#elif TMR0_MODE == TMR0_MODE_CTC
-	CLR_BIT(TCCR0_REG, TCCR0_WGM00);
-	SET_BIT(TCCR0_REG, TCCR0_WGM01); // CTC mode
-#elif TMR0_MODE == TMR0_MODE_PWM
-	SET_BIT(TCCR0_REG, TCCR0_WGM00);
-	SET_BIT(TCCR0_REG, TCCR0_WGM01); // Fast PWM mode
-#endif
+	if (!IS_VALID_MILLISECONDS(milliseconds))
+		return E_NOK;
 
-// Enable Timer interrupt based on the mode
-#if TMR0_MODE == TMR0_MODE_NORMAL
-	SET_BIT(TIMSK_REG, TIMSK_TOIE0); // Enable Overflow Interrupt
-#elif TMR0_MODE == TMR0_MODE_CTC
-	SET_BIT(TIMSK_REG, TIMSK_OCIE0); // Enable Compare Match Interrupt
-#endif // Enable global interrupts
-	SET_BIT(SREG, 7);
-}
-
-void TMR0_Start(uint16_t milliseconds)
-{
-	uint16_t ticks = TMR0_CalculateTicks(milliseconds);
-
-	// Set compare value for CTC mode
-	if (TMR0_MODE == TMR0_MODE_CTC)
-	{
-		OCR0_REG = ticks;
-	}
-
-	// Reset the match counter
-	TMR0_CurrentMatches = 0;
-
-	// Start the timer with the configured prescaler
-	switch (TMR0_PRESCALER)
-	{
-	case TMR0_PRESCALER_NO:
-		TCCR0_REG |= (1 << TCCR0_CS00);
-		break;
-	case TMR0_PRESCALER_8:
-		TCCR0_REG |= (1 << TCCR0_CS01);
-		break;
-	case TMR0_PRESCALER_64:
-		TCCR0_REG |= (1 << TCCR0_CS00) | (1 << TCCR0_CS01);
-		break;
-	case TMR0_PRESCALER_256:
-		TCCR0_REG |= (1 << TCCR0_CS02);
-		break;
-	case TMR0_PRESCALER_1024:
-		TCCR0_REG |= (1 << TCCR0_CS00) | (1 << TCCR0_CS02);
-		break;
-	}
-}
-
-void TMR0_Stop(void)
-{
-	// Stop the timer by clearing the clock source bits
-	TCCR0_REG &= ~((1 << TCCR0_CS00) | (1 << TCCR0_CS01) | (1 << TCCR0_CS02));
-}
-
-void TMR0_SetCallback(void (*callbackFunc)(void))
-{
-	TMR0_Callback = callbackFunc;
-}
-
-// Interrupt Service Routine for Timer0 Compare Match
-ISR(TIMER0_COMP_vect)
-{
-	TMR0_CurrentMatches++;
-
-	// Check if we've reached the required number of matches
-	if (TMR0_CurrentMatches >= TMR0_RequiredMatches)
-	{
-		if (TMR0_Callback != 0)
-		{
-			TMR0_Callback();
-		}
-		TMR0_CurrentMatches = 0; // Reset matches for the next cycle
-	}
-}
-
-// Function to calculate ticks based on the desired time in milliseconds and the configured prescaler
-static uint16_t TMR0_CalculateTicks(uint16_t milliseconds)
-{
 	uint32_t prescaler_value = 1;
 	switch (TMR0_PRESCALER)
 	{
@@ -119,21 +38,132 @@ static uint16_t TMR0_CalculateTicks(uint16_t milliseconds)
 	case TMR0_PRESCALER_1024:
 		prescaler_value = 1024;
 		break;
+	default:
+		return E_NOK;
 	}
 
-	// Calculate ticks based on prescaler and the desired time in milliseconds
-	uint32_t ticks = ((F_CPU / (prescaler_value * 1000)) * milliseconds);
+	// Calculate ticks: (F_CPU / (prescaler * 1000)) * milliseconds
+	uint32_t total_ticks = ((uint32_t)F_CPU / (prescaler_value * 1000)) * milliseconds;
 
-	// If the number of ticks exceeds 255 (the max value for an 8-bit timer), calculate how many compare matches are required
-	if (ticks > 255)
+	// For CTC mode, ticks must fit in OCR0A (0–255)
+	if (total_ticks > 255)
 	{
-		TMR0_RequiredMatches = ticks / 255;
-		ticks = 255; // Set the compare value to the maximum for the first match
+		*matches = (total_ticks + 254) / 255;			  // Ceiling division
+		*ticks = (total_ticks + *matches - 1) / *matches; // Distribute ticks
 	}
 	else
 	{
-		TMR0_RequiredMatches = 1; // Only one match is needed
+		*matches = 1;
+		*ticks = total_ticks;
 	}
 
-	return (uint16_t)ticks;
+	return (*ticks > 0 && *ticks <= 255) ? E_OK : E_NOK;
+}
+
+/*
+ * Initialize Timer0
+ */
+uint8_t TMR0_Init(void)
+{
+	// Clear control registers
+	TCCR0A = 0;
+	TCCR0B = 0;
+
+	// Set mode
+#if TMR0_MODE == TMR0_MODE_NORMAL
+	CLR_BIT(TCCR0A, WGM00);
+	CLR_BIT(TCCR0A, WGM01);
+	CLR_BIT(TCCR0B, WGM02); // Normal mode
+	SET_BIT(TIMSK0, TOIE0); // Enable overflow interrupt
+#elif TMR0_MODE == TMR0_MODE_CTC
+	CLR_BIT(TCCR0A, WGM00);
+	SET_BIT(TCCR0A, WGM01);
+	CLR_BIT(TCCR0B, WGM02);	 // CTC mode
+	SET_BIT(TIMSK0, OCIE0A); // Enable compare match A interrupt
+#else
+	return E_NOK; // Invalid mode
+#endif
+
+	// Enable global interrupts
+	return GLOBAL_INTERRUPT_vidGlobalInterruptEnable(ENABLED);
+}
+
+/*
+ * Start Timer0 for the specified time
+ */
+uint8_t TMR0_Start(uint16_t milliseconds)
+{
+	uint16_t ticks = 0;
+	uint16_t matches = 0;
+
+	// Calculate ticks and required matches
+	uint8_t status = TMR0_CalculateTicks(milliseconds, &ticks, &matches);
+	if (status != E_OK)
+		return E_NOK;
+
+	// Set compare value for CTC mode
+#if TMR0_MODE == TMR0_MODE_CTC
+	OCR0A = (uint8_t)ticks;
+#endif
+
+	// Initialize counters
+	TMR0_RequiredMatches = matches;
+	TMR0_CurrentMatches = 0;
+	TCNT0 = 0; // Reset counter
+
+	// Start timer with prescaler
+	TCCR0B = (TCCR0B & ~(0x07)) | (TMR0_PRESCALER & 0x07);
+
+	return E_OK;
+}
+
+/*
+ * Stop Timer0
+ */
+uint8_t TMR0_Stop(void)
+{
+	// Stop timer by clearing clock select bits
+	TCCR0B &= ~(0x07);
+	return E_OK;
+}
+
+/*
+ * Set callback for timer interrupts
+ */
+uint8_t TMR0_SetCallback(void (*callbackFunc)(void))
+{
+	if (!IS_VALID_CALLBACK(callbackFunc))
+		return E_NOK;
+
+	TMR0_Callback = callbackFunc;
+	return E_OK;
+}
+
+/*
+ * Timer0 Compare Match A Interrupt Service Routine
+ */
+void __vector_14(void) __attribute__((signal));
+void __vector_14(void)
+{
+#if TMR0_MODE == TMR0_MODE_CTC
+	TMR0_CurrentMatches++;
+	if (TMR0_CurrentMatches >= TMR0_RequiredMatches)
+	{
+		if (TMR0_Callback != NULL_PTR)
+			TMR0_Callback();
+		TMR0_CurrentMatches = 0; // Reset for next cycle
+	}
+#endif
+}
+
+/*
+ * Timer0 Overflow Interrupt Service Routine
+ */
+void __vector_16(void) __attribute__((signal));
+void __vector_16(void)
+{
+#if TMR0_MODE == TMR0_MODE_NORMAL
+	if (TMR0_Callback != NULL_PTR)
+		TMR0_Callback();
+#endif
 }

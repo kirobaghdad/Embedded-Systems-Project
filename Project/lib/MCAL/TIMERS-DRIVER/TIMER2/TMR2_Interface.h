@@ -1,20 +1,19 @@
+#ifndef TMR2_INTERFACE_H_
+#define TMR2_INTERFACE_H_
+
 #include "std_types.h"
-#ifndef _TMR2_INTERFACE_H
-#define _TMR2_INTERFACE_H
+#include "TIMERS-DRIVER/TIMER2/TMR2_Config.h"
 
-#include "TMR2_Config.h"
+// Initialize Timer2 with configured mode and prescaler
+uint8_t TMR2_Init(void);
 
-// Initialize the timer with configuration
-void TMR2_Init(void);
+// Start Timer2 for a given time in milliseconds
+uint8_t TMR2_Start(uint16_t milliseconds);
 
-// Start the timer for a given time in milliseconds
-void TMR2_Start(uint16_t milliseconds);
+// Stop Timer2
+uint8_t TMR2_Stop(void);
 
-// Stop the timer
-void TMR2_Stop(void);
+// Set callback function for timer interrupts
+uint8_t TMR2_SetCallback(void (*callbackFunc)(void));
 
-// Set a callback function to be called after the timer completes
-void TMR2_SetCallback(void (*callbackFunc)(void));
-
-#endif /* _TMR2_INTERFACE_H */
-
+#endif /* MCAL_TMR2_DRIVER_TMR2_INT_H_ */

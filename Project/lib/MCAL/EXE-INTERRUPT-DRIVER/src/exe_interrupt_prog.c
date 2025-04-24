@@ -4,226 +4,128 @@
 #include "EXE-INTERRUPT-DRIVER/exe_interrupt_register.h"
 #include "EXE-INTERRUPT-DRIVER/exe_interrupt_config.h"
 #include "EXE-INTERRUPT-DRIVER/exe_interupt_int.h"
-
+/* Interrupt pin configuration */
 typedef struct
 {
 	uint8_t port;
 	uint8_t pin;
 } EXE_INTERRUPT_PIN;
 
-EXE_INTERRUPT_PIN EXE_INTERRUPT_PINS[3] = {EXE_INTERRUPT_0, EXE_INTERRUPT_1, EXE_INTERRUPT_2};
+EXE_INTERRUPT_PIN EXE_INTERRUPT_PINS[2] = {EXE_INTERRUPT_0, EXE_INTERRUPT_1};
 
-void (*vector_1)(void) = NULL_PTR;
-void (*vector_2)(void) = NULL_PTR;
-void (*vector_3)(void) = NULL_PTR;
+/* Callback function pointers */
+static void (*INT0_Callback)(void) = NULL_PTR;
+static void (*INT1_Callback)(void) = NULL_PTR;
 
+/* Helper macro for input validation */
+#define IS_VALID_INTERRUPT(interrupt) ((interrupt) <= INTERRUPT_1)
+#define IS_VALID_MODE(mode) ((mode) <= RISING_EDGE)
+
+/*
+ * Initialize the specified interrupt with the given mode
+ */
 void EXE_INTERRUPT_vidExeInterruptInit(uint8_t interrupt, uint8_t interrupt_mode)
 {
+	if (!IS_VALID_INTERRUPT(interrupt) || !IS_VALID_MODE(interrupt_mode))
+		return;
+
+	// Set pin as input
+	DIO_u8SetPinMode(EXE_INTERRUPT_PINS[interrupt].port, EXE_INTERRUPT_PINS[interrupt].pin, INPUT);
+
+	// Configure interrupt mode
 	EXE_INTERRUPT_vidExeInterruptMode(interrupt, interrupt_mode);
-	switch (interrupt)
-	{
-	case INTERRUPT_0:
-		DIO_u8SetPinMode(EXE_INTERRUPT_PINS[0].port, EXE_INTERRUPT_PINS[0].pin, INPUT);
-		break;
-	case INTERRUPT_1:
-		DIO_u8SetPinMode(EXE_INTERRUPT_PINS[1].port, EXE_INTERRUPT_PINS[1].pin, INPUT);
-		break;
-	case INTERRUPT_2:
-		DIO_u8SetPinMode(EXE_INTERRUPT_PINS[2].port, EXE_INTERRUPT_PINS[2].pin, INPUT);
-		break;
-	case ALL_INTERRUPTS:
-		DIO_u8SetPinMode(EXE_INTERRUPT_PINS[0].port, EXE_INTERRUPT_PINS[0].pin, INPUT);
-		DIO_u8SetPinMode(EXE_INTERRUPT_PINS[1].port, EXE_INTERRUPT_PINS[1].pin, INPUT);
-		DIO_u8SetPinMode(EXE_INTERRUPT_PINS[2].port, EXE_INTERRUPT_PINS[2].pin, INPUT);
-		break;
-	}
+
+	// Enable global interrupts and the specific interrupt
 	GLOBAL_INTERRUPT_vidGlobalInterruptEnable(ENABLED);
 	EXE_INTERRUPT_vidExeInterruptEnable(interrupt, ENABLED);
 }
-void EXE_INTERRUPT_vidExeInterruptSetPullUpMode(uint8_t interrupt)
-{
-	switch (interrupt)
-	{
-	case INTERRUPT_0:
-		DIO_u8SetPullUpMode(EXE_INTERRUPT_PINS[0].port, EXE_INTERRUPT_PINS[0].pin, ENABLED);
-		break;
-	case INTERRUPT_1:
-		DIO_u8SetPullUpMode(EXE_INTERRUPT_PINS[1].port, EXE_INTERRUPT_PINS[1].pin, ENABLED);
-		break;
-	case INTERRUPT_2:
-		DIO_u8SetPullUpMode(EXE_INTERRUPT_PINS[2].port, EXE_INTERRUPT_PINS[2].pin, ENABLED);
-		break;
-	case ALL_INTERRUPTS:
-		DIO_u8SetPullUpMode(EXE_INTERRUPT_PINS[0].port, EXE_INTERRUPT_PINS[0].pin, ENABLED);
-		DIO_u8SetPullUpMode(EXE_INTERRUPT_PINS[1].port, EXE_INTERRUPT_PINS[1].pin, ENABLED);
-		DIO_u8SetPullUpMode(EXE_INTERRUPT_PINS[2].port, EXE_INTERRUPT_PINS[2].pin, ENABLED);
-		break;
-	}
-}
+
+/*
+ * Enable or disable the specified interrupt
+ */
 void EXE_INTERRUPT_vidExeInterruptEnable(uint8_t interrupt, uint8_t mode)
 {
-	if (mode == ENABLED)
+	if (!IS_VALID_INTERRUPT(interrupt) || (mode != ENABLED && mode != DISABLED))
+		return;
+
+	switch (interrupt)
 	{
-		switch (interrupt)
-		{
-		case INTERRUPT_0:
-			SET_BIT(GICR, 6);
-			break;
-		case INTERRUPT_1:
-			SET_BIT(GICR, 7);
-			break;
-		case INTERRUPT_2:
-			SET_BIT(GICR, 5);
-			break;
-		case ALL_INTERRUPTS:
-			SET_BIT(GICR, 5);
-			SET_BIT(GICR, 6);
-			SET_BIT(GICR, 7);
-			break;
-		}
-	}
-	else if (mode == DISABLED)
-	{
-		switch (interrupt)
-		{
-		case INTERRUPT_0:
-			CLR_BIT(GICR, 6);
-			break;
-		case INTERRUPT_1:
-			CLR_BIT(GICR, 7);
-			break;
-		case INTERRUPT_2:
-			CLR_BIT(GICR, 5);
-			break;
-		case ALL_INTERRUPTS:
-			CLR_BIT(GICR, 5);
-			CLR_BIT(GICR, 6);
-			CLR_BIT(GICR, 7);
-			break;
-		}
+	case INTERRUPT_0:
+		mode == ENABLED ? SET_BIT(EIMSK, 0) : CLR_BIT(EIMSK, 0); // INT0
+		break;
+	case INTERRUPT_1:
+		mode == ENABLED ? SET_BIT(EIMSK, 1) : CLR_BIT(EIMSK, 1); // INT1
+		break;
 	}
 }
+
+/*
+ * Set the trigger mode for the specified interrupt
+ */
 void EXE_INTERRUPT_vidExeInterruptMode(uint8_t interrupt, uint8_t interrupt_mode)
 {
-	uint8_t first_bit, second_bit;
-	switch (interrupt_mode)
-	{
-	case RISING_EDGE:
-		first_bit = 1;
-		second_bit = 1;
-		break;
-	case FALLING_EDGE:
-		first_bit = 1;
-		second_bit = 0;
-		break;
-	case LOGICAL_CHANGE:
-		first_bit = 0;
-		second_bit = 1;
-		break;
-	case LOW_LEVEL:
-		first_bit = 0;
-		second_bit = 0;
-		break;
-	}
+	if (!IS_VALID_INTERRUPT(interrupt) || !IS_VALID_MODE(interrupt_mode))
+		return;
+
 	switch (interrupt)
 	{
 	case INTERRUPT_0:
-		if (first_bit == 1)
-			SET_BIT(MCUCR, 1);
-		else if (first_bit == 0)
-			CLR_BIT(MCUCR, 1);
-		if (second_bit == 1)
-			SET_BIT(MCUCR, 0);
-		else if (second_bit == 0)
-			CLR_BIT(MCUCR, 0);
+		MCUCR &= ~(0x03);				  // Clear ISC01:ISC00
+		MCUCR |= (interrupt_mode & 0x03); // Set mode (ISC01:ISC00 = mode)
 		break;
 	case INTERRUPT_1:
-		if (first_bit == 1)
-			SET_BIT(MCUCR, 3);
-		else if (first_bit == 0)
-			CLR_BIT(MCUCR, 3);
-		if (second_bit == 1)
-			SET_BIT(MCUCR, 2);
-		else if (second_bit == 0)
-			CLR_BIT(MCUCR, 2);
-		break;
-	case INTERRUPT_2:
-		if (interrupt_mode == RISING_EDGE || interrupt_mode == FALLING_EDGE)
-		{
-			if (second_bit == 1)
-				SET_BIT(MCUCSR, 6);
-			else if (second_bit == 0)
-				CLR_BIT(MCUCSR, 6);
-		}
-		break;
-	case ALL_INTERRUPTS:
-		if (interrupt_mode == RISING_EDGE || interrupt_mode == FALLING_EDGE)
-		{
-			if (first_bit == 1)
-			{
-				SET_BIT(MCUCR, 1);
-				SET_BIT(MCUCR, 3);
-			}
-			else if (first_bit == 0)
-			{
-				CLR_BIT(MCUCR, 1);
-				CLR_BIT(MCUCR, 3);
-			}
-			if (second_bit == 1)
-			{
-				SET_BIT(MCUCR, 0);
-				SET_BIT(MCUCR, 2);
-				SET_BIT(MCUCSR, 6);
-			}
-			else if (second_bit == 0)
-			{
-				CLR_BIT(MCUCR, 0);
-				CLR_BIT(MCUCR, 2);
-				CLR_BIT(MCUCSR, 6);
-			}
-		}
+		MCUCR &= ~(0x0C);						 // Clear ISC11:ISC10
+		MCUCR |= ((interrupt_mode & 0x03) << 2); // Set mode (ISC11:ISC10 = mode)
 		break;
 	}
 }
 
+/*
+ * Set the pull-up resistor for the specified interrupt pin
+ */
+void EXE_INTERRUPT_vidExeInterruptSetPullUpMode(uint8_t interrupt)
+{
+	if (!IS_VALID_INTERRUPT(interrupt))
+		return;
+
+	DIO_u8SetPullUpMode(EXE_INTERRUPT_PINS[interrupt].port, EXE_INTERRUPT_PINS[interrupt].pin, ENABLED);
+}
+
+/*
+ * Set the callback function for the specified interrupt
+ */
 void EXE_INTERRUPT_vidSetCallBack(uint8_t interrupt, void (*func)(void))
 {
+	if (!IS_VALID_INTERRUPT(interrupt) || func == NULL_PTR)
+		return;
+
 	switch (interrupt)
 	{
 	case INTERRUPT_0:
-		vector_1 = func;
+		INT0_Callback = func;
 		break;
 	case INTERRUPT_1:
-		vector_2 = func;
-		break;
-	case INTERRUPT_2:
-		vector_3 = func;
-		break;
-	case ALL_INTERRUPTS:
-		vector_1 = func;
-		vector_2 = func;
-		vector_3 = func;
+		INT1_Callback = func;
 		break;
 	}
 }
 
+/*
+ * INT0 Interrupt Service Routine
+ */
 void __vector_1(void) __attribute__((signal));
 void __vector_1(void)
 {
-	if (vector_1 != NULL_PTR)
-		vector_1();
+	if (INT0_Callback != NULL_PTR)
+		INT0_Callback();
 }
 
+/*
+ * INT1 Interrupt Service Routine
+ */
 void __vector_2(void) __attribute__((signal));
 void __vector_2(void)
 {
-	if (vector_1 != NULL_PTR)
-		vector_2();
-}
-
-void __vector_3(void) __attribute__((signal));
-void __vector_3(void)
-{
-	if (vector_1 != NULL_PTR)
-		vector_3();
+	if (INT1_Callback != NULL_PTR)
+		INT1_Callback();
 }

@@ -1,25 +1,30 @@
-
-#ifndef _TMR2_CONFIG_H
-#define _TMR2_CONFIG_H
+#ifndef TMR2_CONFIGURATION_H_
+#define TMR2_CONFIGURATION_H_
 
 #include "CPU_Configuration.h"
 
-// Define Timer modes
-#define TMR2_MODE_NORMAL 0
-#define TMR2_MODE_CTC 1
-#define TMR2_MODE_PWM 2
+// Timer2 Modes
+typedef enum
+{
+    TMR2_MODE_NORMAL = 0, // Normal mode
+    TMR2_MODE_CTC = 1     // Clear Timer on Compare Match
+} TMR2_Mode_t;
 
-// Define Clock Source (Prescaler values)
-#define TMR2_PRESCALER_NO 1
-#define TMR2_PRESCALER_8 2
-#define TMR2_PRESCALER_32 3
-#define TMR2_PRESCALER_64 4
-#define TMR2_PRESCALER_128 5
-#define TMR2_PRESCALER_256 6
-#define TMR2_PRESCALER_1024 7
+// Timer2 Clock Source (Prescaler)
+typedef enum
+{
+    TMR2_PRESCALER_NO = 0b001,  // No prescaler (fosc/1)
+    TMR2_PRESCALER_8 = 0b010,   // fosc/8
+    TMR2_PRESCALER_32 = 0b011,  // fosc/32
+    TMR2_PRESCALER_64 = 0b100,  // fosc/64
+    TMR2_PRESCALER_128 = 0b101, // fosc/128
+    TMR2_PRESCALER_256 = 0b110, // fosc/256
+    TMR2_PRESCALER_1024 = 0b111 // fosc/1024
+} TMR2_Prescaler_t;
 
-// Choose the timer mode and prescaler for your configuration
+// Default Configuration
 #define TMR2_MODE TMR2_MODE_CTC
 #define TMR2_PRESCALER TMR2_PRESCALER_64
+#define TMR2_DEFAULT_TICKS 250 // Default OCR2A value for reasonable interrupt frequency
 
-#endif /* _TMR2_CONFIG_H */
+#endif /* MCAL_TMR2_DRIVER_TMR2_CONFIG_H_ */

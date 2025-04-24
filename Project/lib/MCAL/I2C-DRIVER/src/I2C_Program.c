@@ -1,157 +1,196 @@
+#include "std_types.h"
+#include "DIO-DRIVER/dio_int.h"
 #include "I2C-DRIVER/I2C_Configuration.h"
 #include "I2C-DRIVER/I2C_Interface.h"
 #include "I2C-DRIVER/I2C_Address.h"
 
-void I2C_InitMaster(I2C_Clock_t clock, I2C_Prescaler_t prescaler)
+// Helper macro to validate inputs
+#define IS_VALID_SLAVE_ADDR(addr) ((addr) <= 0x7F) // 7-bit address
+#define IS_VALID_PRESCALER(prescaler) ((prescaler) <= I2C_PRESCALER_64)
+#define IS_VALID_DATA_PTR(ptr) ((ptr) != NULL_PTR)
+
+// Helper function to wait for TWINT and check status
+static uint8_t I2C_CheckStatus(uint8_t expected_status)
 {
+	while (!(TWCR & (1 << TWINT))) // Wait for TWINT
+	{
+		asm("NOP");
+	}
+	uint8_t status = TWSR & 0xF8; // Mask prescaler bits
+	return (status == expected_status) ? E_OK : E_NOK;
+}
+
+/*
+ * Initialize I2C in master mode
+ */
+uint8_t I2C_InitMaster(I2C_Clock_t clock, I2C_Prescaler_t prescaler)
+{
+	if (!IS_VALID_PRESCALER(prescaler))
+		return E_NOK;
+
+	// Initialize SDA and SCL pins (PC4, PC5)
+	DIO_u8SetPinMode(I2C_SDA_PORT, I2C_SDA_PIN, INPUT);
+	DIO_u8SetPinMode(I2C_SCL_PORT, I2C_SCL_PIN, INPUT);
+	DIO_u8SetPullUpMode(I2C_SDA_PORT, I2C_SDA_PIN, I2C_DEFAULT_PULLUP);
+	DIO_u8SetPullUpMode(I2C_SCL_PORT, I2C_SCL_PIN, I2C_DEFAULT_PULLUP);
+
 	// Set clock frequency and prescaler
-	TWBR = clock;
-	TWSR = prescaler & 0x03;
+	TWBR = (uint8_t)clock;
+	TWSR = prescaler & 0x03; // TWPS1:TWPS0
 
-	// Enable I2C (TWI)
-	SET_BIT(TWCR, TWEN);
-}
-
-void I2C_MasterSendStartCondition(void)
-{
-	// Send START condition
-	SET_BIT(TWCR, TWSTA);
-	SET_BIT(TWCR, TWINT);
+	// Enable TWI
 	SET_BIT(TWCR, TWEN);
 
-	// Wait for TWINT flag to be set, indicating start condition transmitted
-	while (!(TWCR & (1 << TWINT)))
-		;
+	return E_OK;
 }
 
-void I2C_MasterSendStopCondition(void)
+/*
+ * Send START condition
+ */
+uint8_t I2C_MasterSendStartCondition(void)
 {
-	// Send STOP condition
-	SET_BIT(TWCR, TWSTO);
-	SET_BIT(TWCR, TWINT);
-	SET_BIT(TWCR, TWEN);
+	SET_BIT(TWCR, TWINT); // Clear TWINT flag
+	SET_BIT(TWCR, TWSTA); // Send START condition
+	SET_BIT(TWCR, TWEN);  // Enable TWI
 
-	// No need to wait for stop condition to complete
+	return I2C_CheckStatus(I2C_START_TRANSMITTED);
 }
 
-void I2C_MasterSendRepeatedStartCondition(void)
+/*
+ * Send STOP condition
+ */
+uint8_t I2C_MasterSendStopCondition(void)
 {
-	// Send repeated START condition
-	SET_BIT(TWCR, TWSTA);
-	SET_BIT(TWCR, TWINT);
-	SET_BIT(TWCR, TWEN);
-
-	// Wait for TWINT flag to be set
-	while (!(TWCR & (1 << TWINT)))
-		;
+	SET_BIT(TWCR, TWINT); // Clear TWINT flag
+	SET_BIT(TWCR, TWSTO); // Send STOP condition
+	SET_BIT(TWCR, TWEN);  // Enable TWI
+	return E_OK;		  // No status check needed for STOP
 }
 
-void I2C_MasterSendSlaveAddressWithWrite(I2C_SlaveAddress_t slaveAddress)
+/*
+ * Send repeated START condition
+ */
+uint8_t I2C_MasterSendRepeatedStartCondition(void)
 {
-	// Load slave address with write operation (LSB = 0)
-	TWDR = (slaveAddress << 1);
-
-	// Clear TWINT to start transmission
-	SET_BIT(TWCR, TWINT);
-	SET_BIT(TWCR, TWEN);
-
-	// Wait for TWINT flag to be set
-	while (!(TWCR & (1 << TWINT)))
-		;
+	SET_BIT(TWCR, TWINT); // Clear TWINT flag
+	SET_BIT(TWCR, TWSTA); // Send repeated START condition
+	SET_BIT(TWCR, TWEN);  // Enable TWI
+	return I2C_CheckStatus(I2C_REPEATED_START_TRANSMITTED);
 }
 
-void I2C_MasterSendSlaveAddressWithRead(I2C_SlaveAddress_t slaveAddress)
+/*
+ * Send slave address with write operation
+ */
+uint8_t I2C_MasterSendSlaveAddressWithWrite(I2C_SlaveAddress_t slaveAddress)
 {
-	// Load slave address with read operation (LSB = 1)
-	TWDR = (slaveAddress << 1) | 1;
+	if (!IS_VALID_SLAVE_ADDR(slaveAddress))
+		return E_NOK;
 
-	// Clear TWINT to start transmission
-	SET_BIT(TWCR, TWINT);
-	SET_BIT(TWCR, TWEN);
-
-	// Wait for TWINT flag to be set
-	while (!(TWCR & (1 << TWINT)))
-		;
+	TWDR = (slaveAddress << 1); // Address + write (0)
+	SET_BIT(TWCR, TWINT);		// Clear TWINT flag
+	SET_BIT(TWCR, TWEN);		// Enable TWI
+	return I2C_CheckStatus(I2C_SLA_W_ACK);
 }
 
-void I2C_MasterTransmitDataByte(uint8_t data)
+/*
+ * Send slave address with read operation
+ */
+uint8_t I2C_MasterSendSlaveAddressWithRead(I2C_SlaveAddress_t slaveAddress)
 {
-	// Load data into TWDR
+	if (!IS_VALID_SLAVE_ADDR(slaveAddress))
+		return E_NOK;
+
+	TWDR = (slaveAddress << 1) | 1; // Address + read (1)
+	SET_BIT(TWCR, TWINT);			// Clear TWINT flag
+	SET_BIT(TWCR, TWEN);			// Enable TWI
+	return I2C_CheckStatus(I2C_SLA_R_ACK);
+}
+
+/*
+ * Transmit a data byte
+ */
+uint8_t I2C_MasterTransmitDataByte(uint8_t data)
+{
 	TWDR = data;
-
-	// Clear TWINT to start transmission
-	SET_BIT(TWCR, TWINT);
-	SET_BIT(TWCR, TWEN);
-	// Wait for TWINT flag to be set
-	while (!(TWCR & (1 << TWINT)))
-		;
+	SET_BIT(TWCR, TWINT); // Clear TWINT flag
+	SET_BIT(TWCR, TWEN);  // Enable TWI
+	return I2C_CheckStatus(I2C_DATA_TRANSMITTED_ACK);
 }
 
-uint8_t I2C_MasterReceiveDataByteWithACK(void)
+/*
+ * Receive a data byte with ACK
+ */
+uint8_t I2C_MasterReceiveDataByteWithACK(uint8_t *data)
 {
-	// Clear TWINT and enable acknowledgment
-	SET_BIT(TWCR, TWINT);
-	SET_BIT(TWCR, TWEN);
-	SET_BIT(TWCR, TWEA);
+	if (!IS_VALID_DATA_PTR(data))
+		return E_NOK;
 
-	// Wait for TWINT flag to be set
-	while (!(TWCR & (1 << TWINT)))
-		;
-
-	// Return received data
-	return TWDR;
+	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA); // Enable ACK
+	uint8_t status = I2C_CheckStatus(I2C_DATA_RECEIVED_ACK);
+	if (status == E_OK)
+		*data = TWDR;
+	return status;
 }
 
-uint8_t I2C_MasterReceiveDataByteWithNoACK(void)
+/*
+ * Receive a data byte without ACK
+ */
+uint8_t I2C_MasterReceiveDataByteWithNoACK(uint8_t *data)
 {
-	// Clear TWINT and disable acknowledgment
-	SET_BIT(TWCR, TWINT);
-	SET_BIT(TWCR, TWEN);
+	if (!IS_VALID_DATA_PTR(data))
+		return E_NOK;
 
-	// Wait for TWINT flag to be set
-	while (!(TWCR & (1 << TWINT)))
-		;
-
-	// Return received data
-	return TWDR;
+	TWCR = (1 << TWINT) | (1 << TWEN); // No ACK
+	uint8_t status = I2C_CheckStatus(I2C_DATA_RECEIVED_NO_ACK);
+	if (status == E_OK)
+		*data = TWDR;
+	return status;
 }
 
-// Slave functions
-void I2C_InitSlave(I2C_SlaveAddress_t slaveAddress)
+/*
+ * Initialize I2C in slave mode
+ */
+uint8_t I2C_InitSlave(I2C_SlaveAddress_t slaveAddress)
 {
-	// Set slave address
-	TWAR = slaveAddress << 1;
+	if (!IS_VALID_SLAVE_ADDR(slaveAddress))
+		return E_NOK;
 
-	// Enable I2C and acknowledgment
-	SET_BIT(TWCR, TWEN);
-	SET_BIT(TWCR, TWEA);
+	// Initialize SDA and SCL pins
+	DIO_u8SetPinMode(I2C_SDA_PORT, I2C_SDA_PIN, INPUT);
+	DIO_u8SetPinMode(I2C_SCL_PORT, I2C_SCL_PIN, INPUT);
+	DIO_u8SetPullUpMode(I2C_SDA_PORT, I2C_SDA_PIN, I2C_DEFAULT_PULLUP);
+	DIO_u8SetPullUpMode(I2C_SCL_PORT, I2C_SCL_PIN, I2C_DEFAULT_PULLUP);
+
+	// Set slave address (7-bit, shifted left)
+	TWAR = (slaveAddress << 1);
+
+	// Enable TWI and ACK
+	TWCR = (1 << TWEN) | (1 << TWEA);
+
+	return E_OK;
 }
 
-void I2C_SlaveTransmitDataByte(uint8_t data)
+/*
+ * Slave transmit data byte
+ */
+uint8_t I2C_SlaveTransmitDataByte(uint8_t data)
 {
-	// Load data into TWDR
 	TWDR = data;
-
-	// Clear TWINT to start transmission
-	SET_BIT(TWCR, TWINT);
-	SET_BIT(TWCR, TWEN);
-
-	// Wait for TWINT flag to be set
-	while (!(TWCR & (1 << TWINT)))
-		;
+	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA); // Start transmission
+	return I2C_CheckStatus(I2C_DATA_TRANSMITTED_ACK);
 }
 
-uint8_t I2C_SlaveReceiveDataByte(void)
+/*
+ * Slave receive data byte
+ */
+uint8_t I2C_SlaveReceiveDataByte(uint8_t *data)
 {
-	// Clear TWINT to start reception
-	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA);
-	SET_BIT(TWCR, TWINT);
-	SET_BIT(TWCR, TWEN);
-	SET_BIT(TWCR, TWEA);
-	// Wait for TWINT flag to be set
-	while (!(TWCR & (1 << TWINT)))
-		;
+	if (!IS_VALID_DATA_PTR(data))
+		return E_NOK;
 
-	// Return received data
-	return TWDR;
+	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA); // Start reception
+	uint8_t status = I2C_CheckStatus(I2C_DATA_RECEIVED_ACK);
+	if (status == E_OK)
+		*data = TWDR;
+	return status;
 }

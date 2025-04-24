@@ -1,6 +1,7 @@
 #include "std_types.h"
-#include "MOTOR-HANDLER/motor_int.h"
+#include "DIO-DRIVER/dio_int.h"
 #include "MOTOR-HANDLER/motor_cfg.h"
+#include "MOTOR-HANDLER/motor_int.h"
 
 typedef struct
 {
@@ -8,28 +9,94 @@ typedef struct
 	uint8_t pin;
 } MOTOR_PIN;
 
-MOTOR_PIN motor_pins[2] = {MOTOR_LEFT, MOTOR_RIGHT};
+// Motor pin configuration
+static const MOTOR_PIN motor_pins[2] = {
+	{MOTOR_LEFT_PORT, MOTOR_LEFT_PIN},	// Left control pin (e.g., IN1)
+	{MOTOR_RIGHT_PORT, MOTOR_RIGHT_PIN} // Right control pin (e.g., IN2)
+};
 
-void MOTOR_vidMotorInit()
+/*
+ * Initialize motor pins
+ */
+uint8_t MOTOR_u8MotorInit(void)
 {
-	DIO_u8SetPinMode(motor_pins[0].port, motor_pins[0].pin, OUTPUT);
-	DIO_u8SetPinMode(motor_pins[1].port, motor_pins[1].pin, OUTPUT);
+	uint8_t status;
+
+	// Set left pin as output
+	status = DIO_u8SetPinMode(motor_pins[0].port, motor_pins[0].pin, OUTPUT);
+	if (status != E_OK)
+		return E_NOK;
+
+	// Set right pin as output
+	status = DIO_u8SetPinMode(motor_pins[1].port, motor_pins[1].pin, OUTPUT);
+	if (status != E_OK)
+		return E_NOK;
+
+	// Initialize pins to LOW (motor off)
+	status = DIO_u8SetPinValue(motor_pins[0].port, motor_pins[0].pin, LOW);
+	if (status != E_OK)
+		return E_NOK;
+
+	status = DIO_u8SetPinValue(motor_pins[1].port, motor_pins[1].pin, LOW);
+	if (status != E_OK)
+		return E_NOK;
+
+	return E_OK;
 }
 
-void MOTOR_vidRightRotate()
+/*
+ * Rotate motor to the right
+ */
+uint8_t MOTOR_u8RightRotate(void)
 {
-	DIO_u8SetPinValue(motor_pins[0].port, motor_pins[0].pin, LOW);
-	DIO_u8SetPinValue(motor_pins[0].port, motor_pins[0].pin, HIGH);
+	uint8_t status;
+
+	// Left pin HIGH, right pin LOW (e.g., IN1=1, IN2=0)
+	status = DIO_u8SetPinValue(motor_pins[0].port, motor_pins[0].pin, HIGH);
+	if (status != E_OK)
+		return E_NOK;
+
+	status = DIO_u8SetPinValue(motor_pins[1].port, motor_pins[1].pin, LOW);
+	if (status != E_OK)
+		return E_NOK;
+
+	return E_OK;
 }
 
-void MOTOR_vidLeftRotate()
+/*
+ * Rotate motor to the left
+ */
+uint8_t MOTOR_u8LeftRotate(void)
 {
-	DIO_u8SetPinValue(motor_pins[0].port, motor_pins[0].pin, LOW);
-	DIO_u8SetPinValue(motor_pins[0].port, motor_pins[0].pin, HIGH);
+	uint8_t status;
+
+	// Left pin LOW, right pin HIGH (e.g., IN1=0, IN2=1)
+	status = DIO_u8SetPinValue(motor_pins[0].port, motor_pins[0].pin, LOW);
+	if (status != E_OK)
+		return E_NOK;
+
+	status = DIO_u8SetPinValue(motor_pins[1].port, motor_pins[1].pin, HIGH);
+	if (status != E_OK)
+		return E_NOK;
+
+	return E_OK;
 }
 
-void MOTOR_vidMotorOff()
+/*
+ * Turn off the motor
+ */
+uint8_t MOTOR_u8MotorOff(void)
 {
-	DIO_u8SetPinValue(motor_pins[0].port, motor_pins[0].pin, LOW);
-	DIO_u8SetPinValue(motor_pins[0].port, motor_pins[0].pin, LOW);
+	uint8_t status;
+
+	// Both pins LOW (e.g., IN1=0, IN2=0)
+	status = DIO_u8SetPinValue(motor_pins[0].port, motor_pins[0].pin, LOW);
+	if (status != E_OK)
+		return E_NOK;
+
+	status = DIO_u8SetPinValue(motor_pins[1].port, motor_pins[1].pin, LOW);
+	if (status != E_OK)
+		return E_NOK;
+
+	return E_OK;
 }
