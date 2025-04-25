@@ -23,4 +23,4 @@
 #define WCOL 6  // Write Collision Flag
 #define SPIF 7  // SPI Interrupt Flag
 
-#endif /* MCAL_SPI_DRIVER_SPI_REGISTER_H_ */
+#endif 

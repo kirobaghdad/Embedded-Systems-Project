@@ -21,4 +21,4 @@ typedef enum
 // Default Timeout
 #define WDT_DEFAULT_TIMEOUT WDT_TIMEOUT_2S
 
-#endif /* MCAL_WDT_DRIVER_WDT_CONFIG_H_ */
+#endif

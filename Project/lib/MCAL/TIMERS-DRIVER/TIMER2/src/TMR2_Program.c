@@ -5,15 +5,6 @@
 #include "TIMERS-DRIVER/TIMER2/TMR2_Interface.h"
 #include "TIMERS-DRIVER/TIMER2/TMR2_Address.h"
 
-// Static variables
-static void (*TMR2_Callback)(void) = NULL_PTR;
-static uint16_t TMR2_RequiredMatches = 0;
-static uint16_t TMR2_CurrentMatches = 0;
-
-// Helper macros for validation
-#define IS_VALID_MILLISECONDS(ms) ((ms) > 0)
-#define IS_VALID_CALLBACK(func) ((func) != NULL_PTR)
-
 // Helper function to calculate ticks
 static uint8_t TMR2_CalculateTicks(uint16_t milliseconds, uint16_t *ticks, uint16_t *matches)
 {
@@ -95,6 +86,27 @@ uint8_t TMR2_Init(void)
 }
 
 /*
+ * Initialize Timer2 for PWM mode
+ */
+uint8_t TMR2_InitPWM(void)
+{
+	// Fast PWM Mode (WGM2[2:0] = 0b111)
+	SET_BIT(TCCR2A, WGM20);
+	SET_BIT(TCCR2A, WGM21);
+	SET_BIT(TCCR2B, WGM22);
+
+	// Non-inverting mode for OC2B (COM2B1=1, COM2B0=0)
+	SET_BIT(TCCR2A, COM2B1);
+	CLR_BIT(TCCR2A, COM2B0);
+
+	OCR2B = 0; // Start with 0% duty cycle
+
+	// Set prescaler (e.g., 64)
+	TCCR2B = (TCCR2B & ~0x07) | (TMR2_PRESCALER_64 & 0x07);
+
+	return E_OK;
+}
+/*
  * Start Timer2 for the specified time
  */
 uint8_t TMR2_Start(uint16_t milliseconds)
@@ -146,30 +158,10 @@ uint8_t TMR2_SetCallback(void (*callbackFunc)(void))
 }
 
 /*
- * Timer2 Compare Match A Interrupt Service Routine
+ * Set PWM duty cycle (0–255)
  */
-void __vector_4(void) __attribute__((signal));
-void __vector_4(void)
+uint8_t TMR2_SetPWMDutyCycle(uint8_t duty_cycle)
 {
-#if TMR2_MODE == TMR2_MODE_CTC
-	TMR2_CurrentMatches++;
-	if (TMR2_CurrentMatches >= TMR2_RequiredMatches)
-	{
-		if (TMR2_Callback != NULL_PTR)
-			TMR2_Callback();
-		TMR2_CurrentMatches = 0; // Reset for next cycle
-	}
-#endif
-}
-
-/*
- * Timer2 Overflow Interrupt Service Routine
- */
-void __vector_6(void) __attribute__((signal));
-void __vector_6(void)
-{
-#if TMR2_MODE == TMR2_MODE_NORMAL
-	if (TMR2_Callback != NULL_PTR)
-		TMR2_Callback();
-#endif
+	OCR2B = duty_cycle;
+	return E_OK;
 }

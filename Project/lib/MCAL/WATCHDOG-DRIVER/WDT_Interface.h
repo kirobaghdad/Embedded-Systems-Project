@@ -13,4 +13,4 @@ uint8_t WDT_Reset(void);
 // Disable the Watchdog Timer
 uint8_t WDT_Disable(void);
 
-#endif /* MCAL_WDT_DRIVER_WDT_INT_H_ */
+#endif 

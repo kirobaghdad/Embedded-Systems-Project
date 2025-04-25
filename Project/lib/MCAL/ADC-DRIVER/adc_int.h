@@ -2,19 +2,15 @@
 #define ADC_INT_H_
 #include "std_types.h"
 
-/* Triggering modes for ADC_TRIGGERING_MODE */
 #define AUTO_TRIGGER 0
 #define SOFTWARE_TRIGGER 1
 
-/* Resolution modes for ADC_READING_NO_OF_BITS */
 #define _8_BIT_MODE 0
 #define _10_BIT_MODE 1
 
-/* Reading techniques for ADC_READING_TECHNIQUE */
 #define INTERRUPT_MODE 0
 #define POLLING_MODE 1
 
-/* ADC channels (mapped to PC0–PC5) */
 #define ADC_0 (uint8_t)0
 #define ADC_1 (uint8_t)1
 #define ADC_2 (uint8_t)2
@@ -22,7 +18,6 @@
 #define ADC_4 (uint8_t)4
 #define ADC_5 (uint8_t)5
 
-/* Auto-trigger sources */
 #define FREE_RUNNING 0
 #define ANALOG_COMPARATOR 1
 #define EXTERNAL_INT0 2
@@ -32,7 +27,6 @@
 #define TIMER1_OVERFLOW 6
 #define TIMER1_CAPTURE 7
 
-/* Voltage reference options */
 #define AREF_VOLTAGE 0
 #define VCC 1
 #define INTERNAL_2_56V 2
@@ -48,4 +42,4 @@ void ADC_vidSetAutoTriggerMode(uint8_t mode);
 void ADC_vidSetReadingVariable(uint16_t *adc_read);
 void ADC_vidSetCallBack(void (*func)(void));
 
-#endif /* MCAL_ADC_DRIVER_ADC_INT_H_ */
+#endif

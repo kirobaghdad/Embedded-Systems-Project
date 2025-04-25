@@ -4,7 +4,7 @@
 #include "EXE-INTERRUPT-DRIVER/exe_interrupt_register.h"
 #include "EXE-INTERRUPT-DRIVER/exe_interrupt_config.h"
 #include "EXE-INTERRUPT-DRIVER/exe_interupt_int.h"
-/* Interrupt pin configuration */
+
 typedef struct
 {
 	uint8_t port;
@@ -13,11 +13,9 @@ typedef struct
 
 EXE_INTERRUPT_PIN EXE_INTERRUPT_PINS[2] = {EXE_INTERRUPT_0, EXE_INTERRUPT_1};
 
-/* Callback function pointers */
 static void (*INT0_Callback)(void) = NULL_PTR;
 static void (*INT1_Callback)(void) = NULL_PTR;
 
-/* Helper macro for input validation */
 #define IS_VALID_INTERRUPT(interrupt) ((interrupt) <= INTERRUPT_1)
 #define IS_VALID_MODE(mode) ((mode) <= RISING_EDGE)
 

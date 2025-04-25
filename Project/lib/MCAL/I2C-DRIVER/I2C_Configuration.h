@@ -35,4 +35,4 @@ typedef uint8_t I2C_SlaveAddress_t;
 #define I2C_SCL_PORT PORT_C
 #define I2C_SCL_PIN PIN_5 // PC5
 
-#endif /* MCAL_I2C_DRIVER_I2C_CONFIG_H_ */
+#endif

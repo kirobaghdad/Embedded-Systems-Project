@@ -42,4 +42,4 @@
 #define OCF1A 1 // Output Compare A Flag
 #define TOV1 0  // Overflow Flag
 
-#endif /* MCAL_TMR1_DRIVER_TMR1_REGISTER_H_ */
+#endif

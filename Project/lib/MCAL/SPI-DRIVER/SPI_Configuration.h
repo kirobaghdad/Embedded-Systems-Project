@@ -51,4 +51,4 @@ typedef enum
 #define SPI_MASTER 1
 #define SPI_SLAVE 0
 
-#endif /* MCAL_SPI_DRIVER_SPI_CONFIG_H_ */
+#endif 

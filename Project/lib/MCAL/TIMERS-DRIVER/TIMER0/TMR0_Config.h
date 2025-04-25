@@ -25,4 +25,4 @@ typedef enum
 #define TMR0_PRESCALER TMR0_PRESCALER_64
 #define TMR0_DEFAULT_TICKS 250 // Default OCR0A value for reasonable interrupt frequency
 
-#endif /* MCAL_TMR0_DRIVER_TMR0_CONFIG_H_ */
+#endif

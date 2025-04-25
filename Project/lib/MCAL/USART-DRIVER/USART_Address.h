@@ -41,4 +41,4 @@
 #define UCSZ00 1  // Character Size bit 0
 #define UCPOL0 0  // Clock Polarity (synchronous mode)
 
-#endif /* MCAL_USART_DRIVER_USART_REGISTER_H_ */
+#endif 

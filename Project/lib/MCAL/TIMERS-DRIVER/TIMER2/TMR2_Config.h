@@ -7,7 +7,8 @@
 typedef enum
 {
     TMR2_MODE_NORMAL = 0, // Normal mode
-    TMR2_MODE_CTC = 1     // Clear Timer on Compare Match
+    TMR2_MODE_CTC = 1,     // Clear Timer on Compare Match
+    TMR2_MODE_PWM = 2     // Fast PWM
 } TMR2_Mode_t;
 
 // Timer2 Clock Source (Prescaler)
@@ -24,7 +25,8 @@ typedef enum
 
 // Default Configuration
 #define TMR2_MODE TMR2_MODE_CTC
+#define TMR2_PWM_MODE TMR2_MODE_PWM
 #define TMR2_PRESCALER TMR2_PRESCALER_64
-#define TMR2_DEFAULT_TICKS 250 // Default OCR2A value for reasonable interrupt frequency
-
-#endif /* MCAL_TMR2_DRIVER_TMR2_CONFIG_H_ */
+#define TMR2_DEFAULT_TICKS 250 // Default OCR2A value for CTC mode
+#define TMR2_PWM_DEFAULT_DUTY 0 // Default PWM duty cycle (0–255)
+#endif

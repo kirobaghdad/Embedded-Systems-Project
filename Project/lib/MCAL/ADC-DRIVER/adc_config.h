@@ -9,7 +9,6 @@
  */
 #define ADC_TRIGGERING_MODE SOFTWARE_TRIGGER
 
-/* Define the ADC pin for auto-trigger mode (if AUTO_TRIGGER is selected) */
 #define ADC_AUTO_TRIGGER_PIN ADC_0
 
 /* Choose ADC resolution:
@@ -24,7 +23,6 @@
  */
 #define ADC_READING_TECHNIQUE INTERRUPT_MODE
 
-/* ADC pin connections (mapped to Port C for ATmega328P) */
 #define ADC_0_CONNECTION {PORT_C, PIN_0} // PC0
 #define ADC_1_CONNECTION {PORT_C, PIN_1} // PC1
 #define ADC_2_CONNECTION {PORT_C, PIN_2} // PC2
@@ -32,4 +30,4 @@
 #define ADC_4_CONNECTION {PORT_C, PIN_4} // PC4
 #define ADC_5_CONNECTION {PORT_C, PIN_5} // PC5
 
-#endif /* MCAL_ADC_DRIVER_ADC_CONFIG_H_ */
+#endif

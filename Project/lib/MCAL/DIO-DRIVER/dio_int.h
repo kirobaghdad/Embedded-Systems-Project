@@ -54,4 +54,4 @@ uint8_t DIO_u8SetPortValue(uint8_t port_id, uint8_t value);
 uint8_t DIO_u8GetPortValue(uint8_t port_id, uint8_t *value);
 uint8_t DIO_u8SetPortPullUpMode(uint8_t port_id, uint8_t mode);
 
-#endif /* MCAL_DIO_DRIVER_DIO_INT_H_ */
+#endif 

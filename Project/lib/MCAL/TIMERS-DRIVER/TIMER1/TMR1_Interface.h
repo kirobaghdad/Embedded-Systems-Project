@@ -4,6 +4,19 @@
 #include "std_types.h"
 #include "TIMERS-DRIVER/TIMER1/TMR1_config.h"
 
+// Static variables
+static void (*TMR1_CallbackA)(void) = NULL_PTR;
+static void (*TMR1_CallbackB)(void) = NULL_PTR;
+static void (*TMR1_OverflowCallback)(void) = NULL_PTR;
+static uint32_t TMR1_RequiredMatches = 0;
+static uint32_t TMR1_CurrentMatches = 0;
+
+// Helper macros for validation
+#define IS_VALID_MILLISECONDS(ms) ((ms) > 0)
+#define IS_VALID_DUTY_CYCLE(dc) ((dc) <= 100)
+#define IS_VALID_FREQUENCY(freq) ((freq) > 0)
+#define IS_VALID_CALLBACK(func) ((func) != NULL_PTR)
+
 // Initialize Timer1 with configured mode and prescaler
 uint8_t TMR1_Init(void);
 
@@ -31,4 +44,4 @@ uint8_t TMR1_PWM_SetDutyCycleB(uint8_t duty_cycle);
 // Set PWM frequency for Fast PWM mode
 uint8_t TMR1_PWM_SetFrequency(uint32_t frequency);
 
-#endif /* MCAL_TMR1_DRIVER_TMR1_INT_H_ */
+#endif

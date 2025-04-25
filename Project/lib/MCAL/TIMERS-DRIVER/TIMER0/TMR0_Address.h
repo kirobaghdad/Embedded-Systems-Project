@@ -38,4 +38,4 @@
 #define OCF0A 1 // Output Compare A Flag
 #define OCF0B 2 // Output Compare B Flag
 
-#endif /* MCAL_TMR0_DRIVER_TMR0_REGISTER_H_ */
+#endif

@@ -34,4 +34,4 @@ typedef enum
 #define TMR1_DEFAULT_TOP 65535     // Default TOP for CTC/Normal
 #define TMR1_DEFAULT_PWM_FREQ 1000 // Default PWM frequency (1 kHz)
 
-#endif /* MCAL_TMR1_DRIVER_TMR1_CONFIG_H_ */
+#endif

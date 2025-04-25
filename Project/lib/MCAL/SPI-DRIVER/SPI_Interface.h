@@ -11,4 +11,4 @@ uint8_t SPI_Transmit(uint8_t data);
 uint8_t SPI_Receive(uint8_t *data);
 uint8_t SPI_Transceive(uint8_t data, uint8_t *received_data);
 
-#endif /* MCAL_SPI_DRIVER_SPI_INT_H_ */
+#endif 

@@ -5,7 +5,6 @@
 #include "ADC-DRIVER/adc_register.h"
 #include "GLOBAL-INTERRUPT-DRIVER/global_interrupt_int.h"
 
-/* ADC pin configuration (Port C, PC0–PC5) */
 typedef struct
 {
 	uint8_t port;
@@ -20,16 +19,13 @@ ADC_PIN ADC_PINS[6] = {
 	ADC_4_CONNECTION,
 	ADC_5_CONNECTION};
 
-/* Global variables for reading and callback */
 static uint16_t *ADC_READ = NULL_PTR;
 static void (*ADC_Callback)(void) = NULL_PTR;
 
-/* Helper macro for input validation */
 #define IS_VALID_ADC_PIN(pin) ((pin) <= ADC_5)
 #define IS_VALID_VREF(vref) ((vref) <= INTERNAL_2_56V)
 #define IS_VALID_TRIGGER_MODE(mode) ((mode) <= TIMER1_CAPTURE)
 
-/* Static function to set ADC multiplexer */
 static void ADC_vidSetMultiplexer(uint8_t adc_pin);
 
 /*

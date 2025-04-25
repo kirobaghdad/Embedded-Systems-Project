@@ -161,13 +161,3 @@ uint8_t ICU_DisableInterrupt(void)
     CLR_BIT(TIMSK1, ICIE1);
     return E_OK;
 }
-
-/*
- * Timer1 Input Capture Interrupt Service Routine
- */
-void __vector_10(void) __attribute__((signal));
-void __vector_10(void)
-{
-    if (ICU_CallbackPtr != NULL_PTR)
-        ICU_CallbackPtr();
-}

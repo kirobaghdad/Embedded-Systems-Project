@@ -20,4 +20,4 @@ uint8_t I2C_InitSlave(I2C_SlaveAddress_t slaveAddress);
 uint8_t I2C_SlaveTransmitDataByte(uint8_t data);
 uint8_t I2C_SlaveReceiveDataByte(uint8_t *data);
 
-#endif /* MCAL_I2C_DRIVER_I2C_INT_H_ */
+#endif 

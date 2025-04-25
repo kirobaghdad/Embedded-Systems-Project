@@ -41,4 +41,4 @@
 #define I2C_DATA_RECEIVED_ACK 0x50          // Data byte received, ACK sent
 #define I2C_DATA_RECEIVED_NO_ACK 0x58       // Data byte received, NACK sent
 
-#endif /* MCAL_I2C_DRIVER_I2C_REGISTER_H_ */
+#endif

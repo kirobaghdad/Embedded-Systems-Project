@@ -16,4 +16,4 @@ uint8_t USART_Receive();
 // Transmit a null-terminated string
 uint8_t USART_TransmitString(uint8_t *str, uint8_t send_null);
 
-#endif /* MCAL_USART_DRIVER_USART_INT_H_ */
+#endif 

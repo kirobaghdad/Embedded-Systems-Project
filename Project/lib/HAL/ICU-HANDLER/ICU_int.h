@@ -34,4 +34,4 @@ uint8_t ICU_EnableInterrupt(void);
 // Disable input capture interrupt
 uint8_t ICU_DisableInterrupt(void);
 
-#endif /* MCAL_ICU_DRIVER_ICU_INT_H_ */
+#endif

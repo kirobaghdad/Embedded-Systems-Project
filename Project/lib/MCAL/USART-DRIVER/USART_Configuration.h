@@ -35,4 +35,4 @@ typedef enum
 #define USART_DEFAULT_STOP_BITS USART_STOP_1
 #define USART_DEFAULT_U2X 1 // Enable double-speed mode by default
 
-#endif /* MCAL_USART_DRIVER_USART_CONFIG_H_ */
+#endif 

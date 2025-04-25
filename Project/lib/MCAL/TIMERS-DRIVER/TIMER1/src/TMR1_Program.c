@@ -6,18 +6,6 @@
 #include "TIMERS-DRIVER/TIMER1/TMR1_Interface.h"
 #include "TIMERS-DRIVER/TIMER1/TMR1_Address.h"
 
-// Static variables
-static void (*TMR1_CallbackA)(void) = NULL_PTR;
-static void (*TMR1_CallbackB)(void) = NULL_PTR;
-static void (*TMR1_OverflowCallback)(void) = NULL_PTR;
-static uint32_t TMR1_RequiredMatches = 0;
-static uint32_t TMR1_CurrentMatches = 0;
-
-// Helper macros for validation
-#define IS_VALID_MILLISECONDS(ms) ((ms) > 0)
-#define IS_VALID_DUTY_CYCLE(dc) ((dc) <= 100)
-#define IS_VALID_FREQUENCY(freq) ((freq) > 0)
-#define IS_VALID_CALLBACK(func) ((func) != NULL_PTR)
 
 // Helper function to calculate ticks
 static uint8_t TMR1_CalculateTicks(uint16_t milliseconds, uint16_t *ticks, uint32_t *matches)

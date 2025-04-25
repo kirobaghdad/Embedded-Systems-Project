@@ -16,4 +16,4 @@
  */
 uint8_t GLOBAL_INTERRUPT_vidGlobalInterruptEnable(uint8_t mode);
 
-#endif /* MCAL_GLOBAL_INTERRUPT_DRIVER_GLOBAL_INTERRUPT_INT_H_ */
+#endif

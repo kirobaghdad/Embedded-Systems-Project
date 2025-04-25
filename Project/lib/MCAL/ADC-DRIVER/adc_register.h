@@ -8,4 +8,4 @@
 #define ADCL (*((volatile uint8_t *)0x78))   // ADC Data Register Low Byte
 #define ADCH (*((volatile uint8_t *)0x79))   // ADC Data Register High Byte
 
-#endif /* MCAL_ADC_DRIVER_ADC_REGISTER_H_ */
+#endif
