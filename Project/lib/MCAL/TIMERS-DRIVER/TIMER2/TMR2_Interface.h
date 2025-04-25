@@ -7,7 +7,7 @@
 static void (*TMR2_Callback)(void) = NULL_PTR;
 static uint16_t TMR2_RequiredMatches = 0;
 static uint16_t TMR2_CurrentMatches = 0;
-
+#define IS_VALID_DUTY_CYCLE(dc) ((dc) <= 100)
 // Helper macros for validation
 #define IS_VALID_MILLISECONDS(ms) ((ms) > 0)
 #define IS_VALID_CALLBACK(func) ((func) != NULL_PTR)
@@ -25,4 +25,4 @@ uint8_t TMR2_Stop(void);
 // Set callback function for timer interrupts
 uint8_t TMR2_SetCallback(void (*callbackFunc)(void));
 
-#endif 
+#endif

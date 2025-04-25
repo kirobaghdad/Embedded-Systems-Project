@@ -29,7 +29,7 @@ typedef enum
 #define TMR1_OC1B_PIN PIN_2 // PB2 (OC1B)
 
 // Default Configuration
-#define TMR1_DEFAULT_MODE TMR1_MODE_CTC
+static uint8_t TMR1_DEFAULT_MODE = TMR1_MODE_CTC;
 #define TMR1_DEFAULT_PRESCALER TMR1_PRESCALER_256
 #define TMR1_DEFAULT_TOP 65535     // Default TOP for CTC/Normal
 #define TMR1_DEFAULT_PWM_FREQ 1000 // Default PWM frequency (1 kHz)

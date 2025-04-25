@@ -6,7 +6,6 @@
 #include "TIMERS-DRIVER/TIMER1/TMR1_Interface.h"
 #include "TIMERS-DRIVER/TIMER1/TMR1_Address.h"
 
-
 // Helper function to calculate ticks
 static uint8_t TMR1_CalculateTicks(uint16_t milliseconds, uint16_t *ticks, uint32_t *matches)
 {
@@ -56,11 +55,12 @@ static uint8_t TMR1_CalculateTicks(uint16_t milliseconds, uint16_t *ticks, uint3
 /*
  * Initialize Timer1
  */
-uint8_t TMR1_Init(void)
+uint8_t TMR1_Init(uint8_t TMR1_Mode_t)
 {
 	// Clear control registers
 	TCCR1A = 0;
 	TCCR1B = 0;
+	TMR1_DEFAULT_MODE = TMR1_Mode_t; // Set default mode
 
 	// Set mode and interrupts
 #if TMR1_DEFAULT_MODE == TMR1_MODE_NORMAL
@@ -240,48 +240,4 @@ uint8_t TMR1_PWM_SetFrequency(uint32_t frequency)
 
 	ICR1 = (uint16_t)top_value;
 	return E_OK;
-}
-
-/*
- * Timer1 Compare Match A Interrupt Service Routine
- */
-void __vector_11(void) __attribute__((signal));
-void __vector_11(void)
-{
-#if TMR1_DEFAULT_MODE == TMR1_MODE_CTC
-	TMR1_CurrentMatches++;
-	if (TMR1_CurrentMatches >= TMR1_RequiredMatches)
-	{
-		if (TMR1_CallbackA != NULL_PTR)
-			TMR1_CallbackA();
-		TMR1_CurrentMatches = 0;
-	}
-#endif
-}
-
-/*
- * Timer1 Compare Match B Interrupt Service Routine
- */
-void __vector_12(void) __attribute__((signal));
-void __vector_12(void)
-{
-	if (TMR1_CallbackB != NULL_PTR)
-		TMR1_CallbackB();
-}
-
-/*
- * Timer1 Overflow Interrupt Service Routine
- */
-void __vector_13(void) __attribute__((signal));
-void __vector_13(void)
-{
-#if TMR1_DEFAULT_MODE == TMR1_MODE_NORMAL
-	TMR1_CurrentMatches++;
-	if (TMR1_CurrentMatches >= TMR1_RequiredMatches)
-	{
-		if (TMR1_OverflowCallback != NULL_PTR)
-			TMR1_OverflowCallback();
-		TMR1_CurrentMatches = 0;
-	}
-#endif
 }

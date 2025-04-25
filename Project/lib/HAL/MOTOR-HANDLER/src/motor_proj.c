@@ -3,7 +3,7 @@
 #include "MOTOR-HANDLER/motor_cfg.h"
 #include "MOTOR-HANDLER/motor_int.h"
 #include "TIMERS-DRIVER/TIMER2/TMR2_Interface.h"
-
+#include "TIMERS-DRIVER/TIMER1/TMR1_Interface.h"
 
 // Motor pin configuration
 /* static const MOTOR_PIN motor_pins[3] = {
@@ -15,31 +15,31 @@
 /*
  * Initialize motor pins
  */
-uint8_t MOTOR_u8MotorInit(MOTOR_PIN *motor_pins)
+uint8_t MOTOR_u8MotorInit(MOTOR_CONFIG *motor_config)
 {
 	uint8_t status;
 
 	// Set left pin as output
-	status = DIO_u8SetPinMode(motor_pins[0].port, motor_pins[0].pin, OUTPUT);
+	status = DIO_u8SetPinMode(motor_config->motor_pins[0].port, motor_config->motor_pins[0].pin, OUTPUT);
 	if (status != E_OK)
 		return E_NOK;
 
 	// Set right pin as output
-	status = DIO_u8SetPinMode(motor_pins[1].port, motor_pins[1].pin, OUTPUT);
+	status = DIO_u8SetPinMode(motor_config->motor_pins[1].port, motor_config->motor_pins[1].pin, OUTPUT);
 	if (status != E_OK)
 		return E_NOK;
 
 	// Set enable pin as output
-	status = DIO_u8SetPinMode(motor_pins[2].port, motor_pins[2].pin, OUTPUT);
+	status = DIO_u8SetPinMode(motor_config->motor_pins[2].port, motor_config->motor_pins[2].pin, OUTPUT);
 	if (status != E_OK)
 		return E_NOK;
 
 	// Initialize pins to LOW (motor off)
-	status = DIO_u8SetPinValue(motor_pins[0].port, motor_pins[0].pin, LOW);
+	status = DIO_u8SetPinValue(motor_config->motor_pins[0].port, motor_config->motor_pins[0].pin, LOW);
 	if (status != E_OK)
 		return E_NOK;
 
-	status = DIO_u8SetPinValue(motor_pins[1].port, motor_pins[1].pin, LOW);
+	status = DIO_u8SetPinValue(motor_config->motor_pins[1].port, motor_config->motor_pins[1].pin, LOW);
 	if (status != E_OK)
 		return E_NOK;
 
@@ -49,7 +49,7 @@ uint8_t MOTOR_u8MotorInit(MOTOR_PIN *motor_pins)
 		return E_NOK;
 
 	// Set initial speed to 0 (PWM off)
-	status = MOTOR_u8SetSpeed(0);
+	status = MOTOR_u8SetSpeed(0, motor_config->PWM_Callback);
 	if (status != E_OK)
 		return E_NOK;
 
@@ -59,21 +59,25 @@ uint8_t MOTOR_u8MotorInit(MOTOR_PIN *motor_pins)
 /*
  * Rotate motor to the right
  */
-uint8_t MOTOR_u8RightRotate(MOTOR_PIN *motor_pins, uint8_t motorSpeed)
+uint8_t MOTOR_u8RightRotate(MOTOR_CONFIG *motor_pins, uint8_t motorSpeed)
 {
 	uint8_t status;
 
 	// Left pin HIGH, right pin LOW (e.g., IN1=1, IN2=0)
-	status = DIO_u8SetPinValue(motor_pins[0].port, motor_pins[0].pin, HIGH);
+	status = DIO_u8SetPinValue(motor_pins->motor_pins[0].port, motor_pins->motor_pins[0].pin, HIGH);
 	if (status != E_OK)
 		return E_NOK;
 
-	status = DIO_u8SetPinValue(motor_pins[1].port, motor_pins[1].pin, LOW);
+	status = DIO_u8SetPinValue(motor_pins->motor_pins[1].port, motor_pins->motor_pins[1].pin, LOW);
+	if (status != E_OK)
+		return E_NOK;
+
+	status = DIO_u8SetPinValue(motor_pins->motor_pins[1].port, motor_pins->motor_pins[1].pin, LOW);
 	if (status != E_OK)
 		return E_NOK;
 
 	// Set speed
-	status = MOTOR_u8SetSpeed(motorSpeed);
+	status = MOTOR_u8SetSpeed(motorSpeed, motor_pins->PWM_Callback);
 	if (status != E_OK)
 		return E_NOK;
 
@@ -83,21 +87,25 @@ uint8_t MOTOR_u8RightRotate(MOTOR_PIN *motor_pins, uint8_t motorSpeed)
 /*
  * Rotate motor to the left
  */
-uint8_t MOTOR_u8LeftRotate(uint8_t motorSpeed, MOTOR_PIN *motor_pins)
+uint8_t MOTOR_u8LeftRotate(MOTOR_CONFIG *motor_pins, uint8_t motorSpeed)
 {
 	uint8_t status;
 
 	// Left pin LOW, right pin HIGH (e.g., IN1=0, IN2=1)
-	status = DIO_u8SetPinValue(motor_pins[0].port, motor_pins[0].pin, LOW);
+	status = DIO_u8SetPinValue(motor_pins->motor_pins[0].port, motor_pins->motor_pins[0].pin, LOW);
 	if (status != E_OK)
 		return E_NOK;
 
-	status = DIO_u8SetPinValue(motor_pins[1].port, motor_pins[1].pin, HIGH);
+	status = DIO_u8SetPinValue(motor_pins->motor_pins[1].port, motor_pins->motor_pins[1].pin, HIGH);
+	if (status != E_OK)
+		return E_NOK;
+
+	status = DIO_u8SetPinValue(motor_pins->motor_pins[1].port, motor_pins->motor_pins[1].pin, HIGH);
 	if (status != E_OK)
 		return E_NOK;
 
 	// Set speed
-	status = MOTOR_u8SetSpeed(motorSpeed);
+	status = MOTOR_u8SetSpeed(motorSpeed, motor_pins->PWM_Callback);
 	if (status != E_OK)
 		return E_NOK;
 
@@ -107,21 +115,21 @@ uint8_t MOTOR_u8LeftRotate(uint8_t motorSpeed, MOTOR_PIN *motor_pins)
 /*
  * Turn off the motor
  */
-uint8_t MOTOR_u8MotorOff(MOTOR_PIN *motor_pins)
+uint8_t MOTOR_u8MotorOff(MOTOR_CONFIG *motor_config)
 {
 	uint8_t status;
 
 	// Both pins LOW (e.g., IN1=0, IN2=0)
-	status = DIO_u8SetPinValue(motor_pins[0].port, motor_pins[0].pin, LOW);
+	status = DIO_u8SetPinValue(motor_config->motor_pins[0].port, motor_config->motor_pins[0].pin, LOW);
 	if (status != E_OK)
 		return E_NOK;
 
-	status = DIO_u8SetPinValue(motor_pins[1].port, motor_pins[1].pin, LOW);
+	status = DIO_u8SetPinValue(motor_config->motor_pins[1].port, motor_config->motor_pins[1].pin, LOW);
 	if (status != E_OK)
 		return E_NOK;
 
 	// Set speed to 0 (instead of stopping Timer2)
-	status = MOTOR_u8SetSpeed(0);
+	status = MOTOR_u8SetSpeed(0, motor_config->PWM_Callback);
 	if (status != E_OK)
 		return E_NOK;
 
@@ -129,9 +137,15 @@ uint8_t MOTOR_u8MotorOff(MOTOR_PIN *motor_pins)
 }
 
 /*
- * Set motor speed (0–255)
+ * Set motor speed (0–100%)
  */
-uint8_t MOTOR_u8SetSpeed(uint8_t duty_cycle)
+uint8_t MOTOR_u8SetSpeed(uint8_t duty_cycle, MOTOR_CALLBACK_TYPE callbackType)
 {
-	return TMR2_SetPWMDutyCycle(duty_cycle);
+	switch (callbackType)
+	{
+	case TIMER1_CallBack:
+		return TMR1_PWM_SetDutyCycleA(duty_cycle); // Set duty cycle for Timer1 (Channel A)
+	case TIMER2_CallBack:
+		return TMR2_SetPWMDutyCycle(duty_cycle);
+	}
 }

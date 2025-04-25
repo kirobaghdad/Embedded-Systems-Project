@@ -158,10 +158,12 @@ uint8_t TMR2_SetCallback(void (*callbackFunc)(void))
 }
 
 /*
- * Set PWM duty cycle (0–255)
+ * Set PWM duty cycle (0%–100%)
  */
 uint8_t TMR2_SetPWMDutyCycle(uint8_t duty_cycle)
 {
-	OCR2B = duty_cycle;
+	if (!IS_VALID_DUTY_CYCLE(duty_cycle))
+		return E_NOK;
+	OCR2B = (duty_cycle * 255) / 100;
 	return E_OK;
 }

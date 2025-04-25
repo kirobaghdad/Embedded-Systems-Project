@@ -18,7 +18,7 @@ static uint32_t TMR1_CurrentMatches = 0;
 #define IS_VALID_CALLBACK(func) ((func) != NULL_PTR)
 
 // Initialize Timer1 with configured mode and prescaler
-uint8_t TMR1_Init(void);
+uint8_t TMR1_Init(uint8_t TMR1_Mode_t);
 
 // Start Timer1 for a given time in milliseconds
 uint8_t TMR1_Start(uint16_t milliseconds);
