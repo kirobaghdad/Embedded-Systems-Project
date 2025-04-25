@@ -4,23 +4,18 @@
 #include "MOTOR-HANDLER/motor_int.h"
 #include "TIMERS-DRIVER/TIMER2/TMR2_Interface.h"
 
-typedef struct
-{
-	uint8_t port;
-	uint8_t pin;
-} MOTOR_PIN;
 
 // Motor pin configuration
-static const MOTOR_PIN motor_pins[3] = {
+/* static const MOTOR_PIN motor_pins[3] = {
 	{MOTOR_LEFT_PORT, MOTOR_LEFT_PIN},	  // Left control pin (e.g., IN1)
 	{MOTOR_RIGHT_PORT, MOTOR_RIGHT_PIN},  // Right control pin (e.g., IN2)
 	{MOTOR_ENABLE_PORT, MOTOR_ENABLE_PIN} // Enable pin (e.g., ENA)
-};
+}; */
 
 /*
  * Initialize motor pins
  */
-uint8_t MOTOR_u8MotorInit(void)
+uint8_t MOTOR_u8MotorInit(MOTOR_PIN *motor_pins)
 {
 	uint8_t status;
 
@@ -64,7 +59,7 @@ uint8_t MOTOR_u8MotorInit(void)
 /*
  * Rotate motor to the right
  */
-uint8_t MOTOR_u8RightRotate(uint8_t motorSpeed)
+uint8_t MOTOR_u8RightRotate(MOTOR_PIN *motor_pins, uint8_t motorSpeed)
 {
 	uint8_t status;
 
@@ -88,7 +83,7 @@ uint8_t MOTOR_u8RightRotate(uint8_t motorSpeed)
 /*
  * Rotate motor to the left
  */
-uint8_t MOTOR_u8LeftRotate(uint8_t motorSpeed)
+uint8_t MOTOR_u8LeftRotate(uint8_t motorSpeed, MOTOR_PIN *motor_pins)
 {
 	uint8_t status;
 
@@ -112,7 +107,7 @@ uint8_t MOTOR_u8LeftRotate(uint8_t motorSpeed)
 /*
  * Turn off the motor
  */
-uint8_t MOTOR_u8MotorOff(void)
+uint8_t MOTOR_u8MotorOff(MOTOR_PIN *motor_pins)
 {
 	uint8_t status;
 
