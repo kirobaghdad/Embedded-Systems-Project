@@ -2,7 +2,7 @@
 #define BLUETOOTH_INT_H_
 
 #include "std_types.h"
-#include "USART-DRIVER/USART_Interface.h"
+
 
 // ****** Functions Prototypes ****** //
 void BLUETOOTH_init();

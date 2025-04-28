@@ -18,6 +18,8 @@ int main(void)
 
     
     Ultrasonic_init(&front_sensor);
+    Ultrasonic_init(&right_sensor);
+    Ultrasonic_init(&left_sensor);
 
     DIO_u8SetPinMode(PORT_B, PIN_1, OUTPUT); 
     status = DIO_u8SetPinMode(LED_PORT, LED_PIN, OUTPUT);

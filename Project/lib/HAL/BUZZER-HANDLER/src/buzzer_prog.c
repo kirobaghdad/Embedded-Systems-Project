@@ -11,7 +11,7 @@ uint8_t Buzzer_Init(void)
 
     if (error_status == E_OK)
     {
-        error_status = DIO_u8SetPinValue(BUZZER_PORT, BUZZER_PIN, BUZZER_OFF_STATE);
+        error_status = DIO_u8SetPinValue(BUZZER_PORT, BUZZER_PIN, LOW);
     }
 
     return error_status;
@@ -26,7 +26,7 @@ uint8_t Buzzer_On(void)
 uint8_t Buzzer_Off(void)
 {
 
-    return DIO_u8SetPinValue(BUZZER_PORT, BUZZER_PIN, BUZZER_OFF_STATE);
+    return DIO_u8SetPinValue(BUZZER_PORT, BUZZER_PIN, LOW);
 }
 
 uint8_t Buzzer_Beep(uint32_t duration_ms)

@@ -4,7 +4,7 @@
 
 typedef struct
 {
-    IO echo = {PORT_B, PIN_0};
+    IO echo;
     IO trigger;
 } ultrasonic_config_t;
 
