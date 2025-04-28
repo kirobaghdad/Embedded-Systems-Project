@@ -78,6 +78,20 @@ void Car_Stop()
     MOTOR_u8MotorOff(&motor_config_RL);
     MOTOR_u8MotorOff(&motor_config_RR);
 }
+void Car_RotateRight45()
+{
+    Car_RotateRightInPlace();
+    _delay_ms(300); // TODO: Should be adjusted based on actual testing
+    Car_Stop();
+}
+
+void Car_RotateLeft45()
+{
+    Car_RotateLeftInPlace();
+    _delay_ms(300); // TODO :Should be adjusted based on actual testing
+    Car_Stop();
+}
+
 
 // ===== Main Function =====
 
