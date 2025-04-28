@@ -2,17 +2,15 @@
 #define HAL_MOTOR_DRIVER_MOTOR_INT_H_
 
 #include "std_types.h"
-typedef struct
+
+typedef enum
 {
-	uint8_t port;
-	uint8_t pin;
-} MOTOR_PIN;
-typedef enum {
 	TIMER1_CallBack,
 	TIMER2_CallBack
 } MOTOR_CALLBACK_TYPE;
-typedef struct {
-	MOTOR_PIN motor_pins[3]; 
+typedef struct
+{
+	IO motor_pins[3];
 	MOTOR_CALLBACK_TYPE PWM_Callback; // Callback function for PWM
 } MOTOR_CONFIG;
 
@@ -23,7 +21,7 @@ uint8_t MOTOR_u8MotorInit(MOTOR_CONFIG *motor_config);
 uint8_t MOTOR_u8RightRotate(MOTOR_CONFIG *motor_config, uint8_t motorSpeed);
 
 // Rotate motor to the left
-uint8_t MOTOR_u8LeftRotate(MOTOR_CONFIG *motor_config,uint8_t motorSpeed );
+uint8_t MOTOR_u8LeftRotate(MOTOR_CONFIG *motor_config, uint8_t motorSpeed);
 
 // Turn off the motor
 uint8_t MOTOR_u8MotorOff(MOTOR_CONFIG *motor_config);

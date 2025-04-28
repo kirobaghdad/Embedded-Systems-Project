@@ -1,7 +1,5 @@
-#include <Arduino.h>
-#include <util/delay.h>
 #include "std_types.h"
-
+#include <util/delay.h>
 extern "C" {
     #include "DIO-DRIVER/dio_int.h"
     #include "MOTOR-HANDLER/motor_int.h"
@@ -10,10 +8,10 @@ extern "C" {
 #define CAR_SPEED 50 // Speed of the car (0-100%)
 
 // Motor configurations with PWM callback assignments
-static MOTOR_CONFIG motor_config_FL = { { {PORT_B, PIN2}, {PORT_B, PIN0}, {PORT_B, PIN1} }, TIMER1_CallBack };
-static MOTOR_CONFIG motor_config_FR = { { {PORT_B, PIN4}, {PORT_B, PIN5}, {PORT_D, PIN3} }, TIMER2_CallBack };
-static MOTOR_CONFIG motor_config_RL = { { {PORT_C, PIN0}, {PORT_C, PIN1}, {PORT_B, PIN1} }, TIMER1_CallBack };
-static MOTOR_CONFIG motor_config_RR = { { {PORT_D, PIN0}, {PORT_D, PIN1}, {PORT_D, PIN3} }, TIMER2_CallBack };
+static MOTOR_CONFIG motor_config_FL = { { {PORT_B, PIN_2}, {PORT_B, PIN_0}, {PORT_B, PIN_1} }, TIMER1_CallBack };
+static MOTOR_CONFIG motor_config_FR = { { {PORT_B, PIN_4}, {PORT_B, PIN_5}, {PORT_D, PIN_3} }, TIMER2_CallBack };
+static MOTOR_CONFIG motor_config_RL = { { {PORT_C, PIN_0}, {PORT_C, PIN_1}, {PORT_B, PIN_1} }, TIMER1_CallBack };
+static MOTOR_CONFIG motor_config_RR = { { {PORT_D, PIN_0}, {PORT_D, PIN_1}, {PORT_D, PIN_3} }, TIMER2_CallBack };
 
 // ===== Car Movement Functions =====
 

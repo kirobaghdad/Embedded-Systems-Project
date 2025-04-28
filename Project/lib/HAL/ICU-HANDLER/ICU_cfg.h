@@ -1,9 +1,8 @@
 #ifndef ICU_CFG_H_
 #define ICU_CFG_H_
 
-
 // Include Timer1 config to reuse prescaler defines
-#include "../MCAL/TIMERS-DRIVER/TIMER1/TMR1_config.h"
+#include "TIMERS-DRIVER/TIMER1/TMR1_config.h"
 
 // --- ICU Configuration Options ---
 
@@ -19,6 +18,5 @@
 // Define the initial edge detection state upon initialization
 // Options: ICU_EDGE_FALLING (0), ICU_EDGE_RISING (1)
 #define ICU_DEFAULT_INITIAL_EDGE ICU_EDGE_RISING // Match enum values below
-
 
 #endif

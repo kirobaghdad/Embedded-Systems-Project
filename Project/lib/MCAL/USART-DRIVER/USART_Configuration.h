@@ -33,6 +33,6 @@ typedef enum
 #define USART_DEFAULT_CHAR_SIZE USART_CHAR_SIZE_8
 #define USART_DEFAULT_PARITY USART_PARITY_NONE
 #define USART_DEFAULT_STOP_BITS USART_STOP_1
-#define USART_DEFAULT_U2X 1 // Enable double-speed mode by default
+#define USART_DEFAULT_U2X 0 // Disable double-speed mode by default
 
-#endif 
+#endif

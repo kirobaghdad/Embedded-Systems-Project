@@ -1,5 +1,5 @@
-#include <util/delay.h>
 #include "std_types.h"
+#include <util/delay.h>
 extern "C" {
     #include "DIO-DRIVER/dio_int.h"
     #include "ULTRASONIC-HANDLER/ultrasonic_int.h"
@@ -7,15 +7,17 @@ extern "C" {
 }
 #define LED_PORT PORT_B
 #define LED_PIN PIN_5  
-#define DISTANCE_THRESHOLD 0.5  
-
+#define DISTANCE_THRESHOLD 0.5
+static ultrasonic_config_t front_sensor = {{PORT_B, PIN_0}, {PORT_D, PIN_2}};
+static ultrasonic_config_t right_sensor = {{PORT_B, PIN_0}, {PORT_D, PIN_4}};
+static ultrasonic_config_t left_sensor = {{PORT_B, PIN_0}, {PORT_D, PIN_7}};
 int main(void)
 {
-    uint8_t status;
+    uint8_t status; 
     uint16_t distance;
 
     
-    Ultrasonic_init();
+    Ultrasonic_init(&front_sensor);
 
     DIO_u8SetPinMode(PORT_B, PIN_1, OUTPUT); 
     status = DIO_u8SetPinMode(LED_PORT, LED_PIN, OUTPUT);
@@ -26,7 +28,7 @@ int main(void)
     while (1)
     {
         
-        distance = Ultrasonic_readDistance();
+        distance = Ultrasonic_readDistance(&front_sensor);
         LED_u8LedBlink(PORT_B, PIN_1, 50); // Blink the LED on pin 1 of PORTB every 1000 ms
  
         

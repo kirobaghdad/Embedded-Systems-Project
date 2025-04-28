@@ -7,26 +7,26 @@
 uint8_t g_edgeCount = (INITIAL_VALUE_ZERO);
 uint16_t g_T_edge = (INITIAL_VALUE_ZERO);
 
-void Ultrasonic_init(void)
+void Ultrasonic_init(ultrasonic_config_t *ultrasonic_config)
 {
     ICU_Init();
 
     ICU_SetCallback(Ultrasonic_edgeProcessing);
 
-    DIO_u8SetPinMode(Ultrasonic_TRIGGER_PORT, Ultrasonic_TRIGGER_PIN, OUTPUT);
+    DIO_u8SetPinMode(ultrasonic_config->trigger.port, ultrasonic_config->trigger.port, OUTPUT);
 }
 
-void Ultrasonic_Trigger(void)
+void Ultrasonic_Trigger(ultrasonic_config_t *ultrasonic_config)
 {
-    DIO_u8SetPinValue(Ultrasonic_TRIGGER_PORT, Ultrasonic_TRIGGER_PIN, HIGH);
+    DIO_u8SetPinValue(ultrasonic_config->trigger.port, ultrasonic_config->trigger.pin, HIGH);
     _delay_us(TRIGGER_DELAY);
-    DIO_u8SetPinValue(Ultrasonic_TRIGGER_PORT, Ultrasonic_TRIGGER_PIN, LOW);
+    DIO_u8SetPinValue(ultrasonic_config->trigger.port, ultrasonic_config->trigger.pin, LOW);
 }
 
-uint16_t Ultrasonic_readDistance(void)
+uint16_t Ultrasonic_readDistance(ultrasonic_config_t *ultrasonic_config)
 {
 
-    Ultrasonic_Trigger();
+    Ultrasonic_Trigger(ultrasonic_config);
 
     float32_t _scale = (float32_t)(((2) * (F_CPU)) / ((SPEED_OF_SOUND) * (F_PRESCALER)));
 
