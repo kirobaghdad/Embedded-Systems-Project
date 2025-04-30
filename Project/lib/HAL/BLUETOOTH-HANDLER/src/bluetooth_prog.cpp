@@ -1,15 +1,16 @@
 #include <SoftwareSerial.h>
 #include "BLUETOOTH-HANDLER/bluetooth_int.h"
 #include "BLUETOOTH-HANDLER/bluetooth_cfg.h"
-#include "DIO-DRIVER/dio_int.h"
-
+#include "GPIO/GPIO_int.h"
+#include<arduino.h>
 SoftwareSerial bluetoothSerial(11,10); // RX, TX
 
 void BLUETOOTH_init()
 {
-    DIO_u8SetPinMode(ARD_RX_PORT, ARD_RX_PIN, INPUT);
-    DIO_u8SetPinMode(ARD_TX_PORT, ARD_TX_PIN, OUTPUT);
-    bluetoothSerial.begin(BLUETOOTH_BAUD_RATE);
+    // GPIO_SetPinMode(ARD_RX_PORT, ARD_RX_PIN, INPUT);
+    // GPIO_SetPinMode(ARD_TX_PORT, ARD_TX_PIN, OUTPUT);
+    Serial.begin(9600); // For debugging on Serial Monitor
+    bluetoothSerial.begin(9600);
 }
 
 void BLUETOOTH_sendChar(uint8_t character)
@@ -22,9 +23,10 @@ void BLUETOOTH_sendString(uint8_t *message)
     bluetoothSerial.print((char *)message);
 }
 
-uint8_t BLUETOOTH_receiveChar(void)
-{
-    while (!bluetoothSerial.available())
-        ;
-    return bluetoothSerial.read();
+uint8_t BLUETOOTH_receiveChar(void) {
+    if (bluetoothSerial.available()) { // Check if data is available
+         Serial.println("Waiting for data in the loop...");
+        return bluetoothSerial.read(); // Read and return the character
+    }
+    return 0; 
 }

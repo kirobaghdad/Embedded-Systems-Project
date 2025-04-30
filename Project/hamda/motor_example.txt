@@ -1,0 +1,87 @@
+#include "std_types.h"
+#include <util/delay.h>
+extern "C" {
+    #include "GPIO/GPIO_int.h"
+    #include "MOTOR-HANDLER/motor_int.h"
+    #include "TIMER0/TIMER0_int.h"
+}
+
+#define CAR_SPEED 175 // Speed of the car (0-100%)
+
+// Motor configurations with PWM callback assignments
+static MOTOR_CONFIG motor_config_L = { { {PORT_C, PIN_1}, {PORT_C, PIN_0}, {PORT_D, PIN_6} },.PWM_Callback=TIMER0_CallBack_A };
+static MOTOR_CONFIG motor_config_R = { { {PORT_C, PIN_2}, {PORT_C, PIN_3}, {PORT_D, PIN_5} },.PWM_Callback=TIMER0_CallBack_B };
+static Timer0_params Timer0_CFG = {
+    .timer0_mode = TIMER0_FAST_PWM_MODE,
+    .timer0_prescaler = TIMER0_PRESCALER_64, // Have No idea why
+    .compare_val = 255, // Dummy but Works for CTC.
+    .com_rega = COM_NON_INVERTING,
+    .com_regb = COM_NON_INVERTING,
+    .OCR0A_val = CAR_SPEED,
+    .OCR0B_val = CAR_SPEED,
+};
+// ===== Car Movement Functions =====
+
+void Car_Init()
+{
+    MOTOR_u8MotorInit(&motor_config_L, &Timer0_CFG); 
+    MOTOR_u8MotorInit(&motor_config_R, &Timer0_CFG);
+}
+
+void Car_MoveForward()
+{
+    MOTOR_u8RightRotate(&motor_config_L, CAR_SPEED,&Timer0_CFG);
+    MOTOR_u8RightRotate(&motor_config_R, CAR_SPEED,&Timer0_CFG);
+}
+
+void Car_MoveBackward()
+{
+    MOTOR_u8LeftRotate(&motor_config_L,CAR_SPEED,&Timer0_CFG);
+    MOTOR_u8LeftRotate(&motor_config_R,CAR_SPEED,&Timer0_CFG);
+}
+
+void Car_TurnLeft()
+{
+    MOTOR_u8RightRotate(&motor_config_L, CAR_SPEED / 2,&Timer0_CFG);
+    MOTOR_u8RightRotate(&motor_config_R, CAR_SPEED,&Timer0_CFG);
+}
+
+void Car_TurnRight()
+{
+    MOTOR_u8RightRotate(&motor_config_L, CAR_SPEED,&Timer0_CFG);
+    MOTOR_u8RightRotate(&motor_config_R, CAR_SPEED / 2,&Timer0_CFG);
+}
+
+void Car_RotateLeftInPlace()
+{
+    MOTOR_u8LeftRotate(&motor_config_L, CAR_SPEED,&Timer0_CFG);
+    MOTOR_u8RightRotate(&motor_config_R, CAR_SPEED,&Timer0_CFG);
+}
+
+void Car_RotateRightInPlace()
+{
+    MOTOR_u8RightRotate(&motor_config_L, CAR_SPEED,&Timer0_CFG);
+    MOTOR_u8LeftRotate(&motor_config_R, CAR_SPEED,&Timer0_CFG);
+}
+
+void Car_Stop()
+{
+    MOTOR_u8MotorOff(&motor_config_L,&Timer0_CFG);
+    MOTOR_u8MotorOff(&motor_config_R, &Timer0_CFG);
+}
+
+// ===== Main Function =====
+
+int main(void)
+{
+    Car_Init();
+
+    while (1)
+    {
+        Car_MoveForward();
+        // Car_TurnLeft();
+        // Car_MoveBackward();
+        // Car_RotateRightInPlace();
+        // Car_Stop();
+    }
+}

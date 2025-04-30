@@ -1,0 +1,23 @@
+#include <arduino.h>
+#include <SoftwareSerial.h>
+#include <BLUETOOTH-HANDLER/bluetooth_int.h>
+
+int main(void) {
+    init();
+
+    // Initialize Bluetooth and Serial
+    BLUETOOTH_init();
+
+    // Main loop
+    while (1) {
+        uint8_t receivedChar = BLUETOOTH_receiveChar();
+        if (receivedChar != 0) { // Only process if data was received
+            Serial.print("Received: ");
+            Serial.println((char)receivedChar);
+            BLUETOOTH_sendChar(receivedChar); // Echo back the received character
+        }    
+        _delay_ms(300); // Delay 300ms
+    }
+
+    return 0; // Never reached
+}
