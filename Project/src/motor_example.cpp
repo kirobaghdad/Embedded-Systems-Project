@@ -1,10 +1,8 @@
 #include "std_types.h"
 #include <util/delay.h>
-extern "C" {
-    #include "GPIO/GPIO_int.h"
-    #include "MOTOR-HANDLER/motor_int.h"
-    #include "TIMER0/TIMER0_int.h"
-}
+#include "GPIO/GPIO_int.h"
+#include "MOTOR-HANDLER/motor_int.h"
+#include "TIMER0/TIMER0_int.h"
 
 #define CAR_SPEED 175 // Speed of the car (0-100%)
 
