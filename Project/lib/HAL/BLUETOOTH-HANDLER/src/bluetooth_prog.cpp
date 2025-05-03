@@ -3,6 +3,7 @@
 #include "BLUETOOTH-HANDLER/bluetooth_cfg.h"
 #include "GPIO/GPIO_int.h"
 #include<arduino.h>
+#include <string>
 SoftwareSerial bluetoothSerial(11,10); // RX, TX
 
 void BLUETOOTH_init()
@@ -29,4 +30,19 @@ uint8_t BLUETOOTH_receiveChar(void) {
         return bluetoothSerial.read(); // Read and return the character
     }
     return 0; 
+}
+
+std::string BLUETOOTH_receiveString(void) {
+    std::string mesg;
+
+    while(!bluetoothSerial.available())
+        ;
+
+    // start receiving string
+    while(bluetoothSerial.available())
+    {
+        mesg += BLUETOOTH_receiveChar();
+    }
+    
+    return mesg; 
 }

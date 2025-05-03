@@ -20,12 +20,7 @@ typedef enum
     TIMER0_PRESCALER_256 = 0b100,
     TIMER0_PRESCALER_1024 = 0b101
 } TIMER0_Prescaler_t;
-typedef enum
-{
-    COM_DISCONNECT = 0b00,
-    COM_NON_INVERTING = 0b10,
-    COM_INVERTING = 0b11
-} COM_Status_t;
+
 typedef struct
 {
     TIMER0_Mode_t timer0_mode;

@@ -13,5 +13,10 @@ typedef struct
 typedef float float32_t;
 typedef double float64_t;
 typedef long double float80_t;
-
+typedef enum
+{
+    COM_DISCONNECT = 0b00,
+    COM_NON_INVERTING = 0b10,
+    COM_INVERTING = 0b11
+} COM_Status_t;
 #endif

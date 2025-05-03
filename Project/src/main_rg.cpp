@@ -16,8 +16,8 @@
 #include "GPIO/GPIO_int.h"
 #include "TIMER1/TIMER1_int.h"
 
-# define DISTANCE_THRESHOLD 30
-
+# define DISTANCE_THRESHOLD 20
+#define DELAY_PER_CM 21
 // #define DISTANCE_THRESHOLD 0.5
 static ultrasonic_config_t FRONT_SENSOR = {.echo = {PORT_B, PIN_0}, .trigger = {PORT_D, PIN_2}};
 static ultrasonic_config_t RIGHT_SENSOR = {.echo = {PORT_B, PIN_0}, .trigger = {PORT_D, PIN_4}};
@@ -51,17 +51,17 @@ const int MOTOR_SPEED = 150; // PWM speed (0-255)
 
 static uint8_t parking_side; // 'R' or 'L'
 static ultrasonic_config_t* SLOT_SIDE_SENSOR = NULL;// Function declarations
-#define CAR_SPEED 50
-#define PARKING_GAP_MARGIN 10
+#define PARKING_GAP_MARGIN 5
 #define CAR_LENGTH 25
+#define CAR_WIDTH 10
 void initMotors();
 void moveForward();
 void moveBackward();
 void moveRight();
 void moveLeft();
 void stopMotors();
-void Car_RotateRight45();
-void Car_RotateLeft45();
+void Car_RotateRight90();
+void Car_RotateLeft90();
 
 void initMotors()
 {
@@ -78,49 +78,62 @@ void initMotors()
 }
 
 
-void perform_parallel_parking() {
+void perform_parking() {
+    stopMotors();
+    _delay_ms(1000);
     if (parking_side == 'R') {
         stopMotors();
-        Car_RotateLeft45();
+        _delay_ms(250);
+        Car_RotateLeft90();
         stopMotors();
         _delay_ms(10);
         moveBackward();
-        _delay_ms(900);
+        _delay_ms(350);
         if (PARKING_TYPE=='-')
-            Car_RotateRight45();
+        {
+            stopMotors();
+        _delay_ms(1000);
+            Car_RotateRight90();
+        }
+        
 
 
     } else {
         stopMotors();
-        Car_RotateRight45();
+        _delay_ms(250);
+        Car_RotateRight90();
         stopMotors();
         _delay_ms(10);
         moveBackward();
-        _delay_ms(900);
+        _delay_ms(350);
         if (PARKING_TYPE=='-')
-            Car_RotateLeft45();
+            {
+                stopMotors();
+        _delay_ms(1000);
+            Car_RotateLeft90();
+            }
     }
 
     stopMotors();
 }
-void Car_RotateRight45() {
+void Car_RotateRight90() {
     moveRight();
-    if(PARKING_TYPE=='|')
-    {
-        _delay_ms(500);
-    }
-    else
-        _delay_ms(400);
+    // if(PARKING_TYPE=='|')
+    // {
+        _delay_ms(490);
+    // }
+    // else
+        // _delay_ms(200);
     stopMotors();
 }
-void Car_RotateLeft45() {
+void Car_RotateLeft90() {
     moveLeft();
-    if(PARKING_TYPE=='|')
-    {
-        _delay_ms(500);
-    }
-    else
-        _delay_ms(400); // TODO: Should be adjusted based on actual testing
+    // if(PARKING_TYPE=='|')
+    // {
+        _delay_ms(490);
+    // }
+    // else
+    //     _delay_ms(200); // TODO: Should be adjusted based on actual testing
     stopMotors();
 }
 
@@ -174,21 +187,10 @@ void slot_detection_and_parking() {
         GPIO_SetPinValue(PORT_B, PIN_4, LOW);   // Set echo pin to low
         GPIO_SetPinValue(PORT_B, PIN_5, LOW);
         right_distance = Ultrasonic_readDistance(&RIGHT_SENSOR,&timer1_conf);
-        Serial.print("Right Distance: ");
-        Serial.println(right_distance);
         GPIO_SetPinValue(PORT_B, PIN_4, HIGH);   // Set echo pin to low
         GPIO_SetPinValue(PORT_B, PIN_5, LOW);
         left_distance = Ultrasonic_readDistance(&LEFT_SENSOR,&timer1_conf);
-        Serial.print("Left Distance: ");
-        Serial.println(left_distance);
-        Serial.print("Measured Gap: ");
-        Serial.println(measured_gap);
-        BLUETOOTH_sendChar('left_distance);');
-        BLUETOOTH_sendChar(left_distance);
-        BLUETOOTH_sendChar('right_distance);');
-        BLUETOOTH_sendChar(right_distance);
-        BLUETOOTH_sendChar('measured_gap);');
-        BLUETOOTH_sendChar(measured_gap);
+
         if (right_distance > DISTANCE_THRESHOLD) {
             if (!gap_found) {
                 gap_found = 1;
@@ -196,10 +198,14 @@ void slot_detection_and_parking() {
                 parking_side = 'R';
                 SLOT_SIDE_SENSOR = &RIGHT_SENSOR;
             }
-            measured_gap += 5;
-            _delay_ms(20);
-            if (measured_gap >= (CAR_LENGTH + PARKING_GAP_MARGIN)/2) {
-                perform_parallel_parking();
+            
+            measured_gap += 12;
+            _delay_ms(DELAY_PER_CM);
+            // _delay_ms(30);
+            if ((PARKING_TYPE == '-' && measured_gap >= (CAR_LENGTH + PARKING_GAP_MARGIN)/2) ||
+    (PARKING_TYPE == '|' && measured_gap >= (CAR_WIDTH + PARKING_GAP_MARGIN)/2)) {
+                perform_parking();
+                stopMotors();
                 break;
             }
         } else if (left_distance > DISTANCE_THRESHOLD) {
@@ -209,21 +215,27 @@ void slot_detection_and_parking() {
                 parking_side = 'L';
                 SLOT_SIDE_SENSOR = &LEFT_SENSOR;
             }
-            measured_gap += 5;
-            _delay_ms(20);
-            if (measured_gap >= (CAR_LENGTH + PARKING_GAP_MARGIN)/2) {
-                perform_parallel_parking();
+            measured_gap += 12;
+            //_delay_ms(30);
+            _delay_ms(DELAY_PER_CM);
+            if ((PARKING_TYPE == '-' && measured_gap >= (CAR_LENGTH + PARKING_GAP_MARGIN)/2) ||
+    (PARKING_TYPE == '|' && measured_gap >= (CAR_WIDTH + PARKING_GAP_MARGIN)/2)){
+                perform_parking();
+                stopMotors();
                 break;
             }
         } else {
             if (gap_found) {
-                if (measured_gap >= (CAR_LENGTH + PARKING_GAP_MARGIN)/2) {
+                if ((PARKING_TYPE == '-' && measured_gap >= (CAR_LENGTH + PARKING_GAP_MARGIN)/2) ||
+    (PARKING_TYPE == '|' && measured_gap >= (CAR_WIDTH + PARKING_GAP_MARGIN)/2)) {
                     stopMotors();
-                    /* perform_parallel_parking();
-                    indicate_parking_success(); */
+                    perform_parking();
+                    stopMotors();
+                    // indicate_parking_success();
                     BLUETOOTH_sendChar('p');
                     stopMotors();
-                    perform_parallel_parking();
+                    perform_parking();
+                    stopMotors();
 
                     break;
                 } else {
@@ -276,7 +288,7 @@ void setup()
     Ultrasonic_init(&FRONT_SENSOR,&timer1_conf);
     Ultrasonic_init(&RIGHT_SENSOR,&timer1_conf);
     Ultrasonic_init(&LEFT_SENSOR,&timer1_conf);
-    delay(7000); // to remove the wire ;)
+    // delay(7000); // to remove the wire ;)
 
     /* moveForward();
     delay(MOV_DELAY);
@@ -291,17 +303,45 @@ void setup()
     delay(MOV_DELAY);
 
     stopMotors(); */
-/*     uint8_t receivedChar = BLUETOOTH_receiveChar();
-    if (receivedChar != 0) { // Only process if data was received
-        Serial.print("Received: ");
-        Serial.println((char)receivedChar); */
-        //moveForward(); // Move forward on receiving any character
-        slot_detection_and_parking(); // Call the parking function
-        _delay_ms(300); // Delay 300ms
-        stopMotors(); // Stop after moving forward
-    }  
-//}
+    uint8_t receivedChar = BLUETOOTH_receiveChar();
+    while(receivedChar==0)
+    {
+        receivedChar = BLUETOOTH_receiveChar();
+    }
 
+     Serial.println(receivedChar);
+     if (receivedChar == 'p')
+     { // Only process if data was received
+        uint8_t receivedChar = BLUETOOTH_receiveChar();
+        while(receivedChar==0)
+           {
+               receivedChar =BLUETOOTH_receiveChar();
+           }
+        Serial.println(receivedChar);
+         if (receivedChar == 'L')
+         {
+             PARKING_TYPE = '|';
+         }
+         else if (receivedChar == 'R')
+         {
+             PARKING_TYPE = '-';
+         }
+         else
+         {
+             Serial.println("Invalid parking type received.");
+             return;
+         }
+         // moveForward(); // Move forward on receiving any character
+         slot_detection_and_parking(); // Call the parking function
+         // Car_RotateLeft90();
+         //_delay_ms(1450); // Delay 300ms
+         // Car_RotateRight90();
+         stopMotors(); // Stop after moving forward
+     }  
+}
+
+// 70 cm -- > 1450 n
+// 25 --> t
 void loop()
 {  
 

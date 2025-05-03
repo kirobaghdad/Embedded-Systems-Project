@@ -3,9 +3,24 @@
 #include "GPIO/GPIO_int.h"
 #include "MOTOR-HANDLER/motor_int.h"
 #include "TIMER0/TIMER0_int.h"
-
+#include "TIMER1/TIMER1_int.h"
+#include "ULTRASONIC-HANDLER/ultrasonic_int.h"
+#include <arduino.h>
 #define CAR_SPEED 175 // Speed of the car (0-100%)
-
+static ultrasonic_config_t FRONT_SENSOR = {.echo = {PORT_B, PIN_0}, .trigger = {PORT_D, PIN_2}};
+static ultrasonic_config_t RIGHT_SENSOR = {.echo = {PORT_B, PIN_0}, .trigger = {PORT_D, PIN_4}};
+static ultrasonic_config_t LEFT_SENSOR = {.echo = {PORT_B, PIN_0}, .trigger = {PORT_D, PIN_7}};
+static uint8_t PARKING_TYPE = '|';
+static Timer1_params timer1_conf = {
+    .timer1_mode = TIMER1_ICU_MODE,
+    .timer1_prescaler = TIMER1_PRESCALER_64, // Have No idea why
+    .compare_val = 255,                      // Dummy but Works for CTC.
+    .com_rega = COM_NON_INVERTING,
+    .com_regb = COM_NON_INVERTING,
+    .OCR1A_val = 175,
+    .OCR1B_val = 175,
+    .icu_edge = ICU_RISING_EDGE
+};
 // Motor configurations with PWM callback assignments
 static MOTOR_CONFIG motor_config_L = { { {PORT_C, PIN_1}, {PORT_C, PIN_0}, {PORT_D, PIN_6} },.PWM_Callback=TIMER0_CallBack_A };
 static MOTOR_CONFIG motor_config_R = { { {PORT_C, PIN_2}, {PORT_C, PIN_3}, {PORT_D, PIN_5} },.PWM_Callback=TIMER0_CallBack_B };
@@ -72,11 +87,20 @@ void Car_Stop()
 
 int main(void)
 {
+    Serial.begin(9600);
     Car_Init();
-
+    // Ultrasonic_init(&FRONT_SENSOR, &timer1_conf);
+    GPIO_SetPinMode(PORT_B, PIN_4, OUTPUT); // Set echo pin as input
+    GPIO_SetPinMode(PORT_B, PIN_5, OUTPUT); // Set echo pin as input
+    GPIO_SetPinValue(PORT_B, PIN_4, LOW);   // Set echo pin to low
+    GPIO_SetPinValue(PORT_B, PIN_5, LOW);   // Set echo pin to low
     while (1)
     {
         Car_MoveForward();
+        // _delay_ms(500);
+        uint8_t distance = Ultrasonic_readDistance(&RIGHT_SENSOR,&timer1_conf);
+        Serial.print("Distance: ");
+        // _delay_ms(500);
         // Car_TurnLeft();
         // Car_MoveBackward();
         // Car_RotateRightInPlace();

@@ -12,4 +12,5 @@ void Ultrasonic_init(ultrasonic_config_t *ultrasonic_config, Timer1_params *time
 void Ultrasonic_Trigger(ultrasonic_config_t *ultrasonic_config);
 uint16_t Ultrasonic_readDistance(ultrasonic_config_t *ultrasonic_config, Timer1_params *timer_conf);
 void Ultrasonic_edgeProcessing(void);
+void Ultrasonic_timeoutHandler(void);
 #endif
