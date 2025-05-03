@@ -25,7 +25,6 @@ void MOTOR_u8RightRotate(MOTOR_CONFIG *motor_pins, uint8_t motorSpeed, Timer0_pa
 
 	GPIO_SetPinValue(motor_pins->motor_pins[0].port, motor_pins->motor_pins[0].pin, HIGH);
 	GPIO_SetPinValue(motor_pins->motor_pins[1].port, motor_pins->motor_pins[1].pin, LOW);
-	GPIO_SetPinValue(motor_pins->motor_pins[1].port, motor_pins->motor_pins[1].pin, LOW);
 	MOTOR_u8SetSpeed(motorSpeed, motor_pins->PWM_Callback, timer_conf); // Set speed for Timer0 (Channel A)
 }
 
@@ -39,7 +38,6 @@ void MOTOR_u8LeftRotate(MOTOR_CONFIG *motor_pins, uint8_t motorSpeed, Timer0_par
 
 	GPIO_SetPinValue(motor_pins->motor_pins[1].port, motor_pins->motor_pins[1].pin, HIGH);
 
-	GPIO_SetPinValue(motor_pins->motor_pins[1].port, motor_pins->motor_pins[1].pin, HIGH);
 
 	MOTOR_u8SetSpeed(motorSpeed, motor_pins->PWM_Callback, timer_conf);
 }

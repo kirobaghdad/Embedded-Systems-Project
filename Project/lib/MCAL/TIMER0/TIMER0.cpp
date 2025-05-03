@@ -37,7 +37,7 @@ void TIMER0_INIT(Timer0_params *timer_conf)
         CLR_BIT(TCCR0A, WGM00);
         CLR_BIT(TCCR0A, WGM01);
         CLR_BIT(TCCR0B, WGM02); // Normal mode
-        SET_BIT(TIMSK0, TOIE0); // Enable overflow interrupt
+        // SET_BIT(TIMSK0, TOIE0); // Enable overflow interrupt
         break;
     case TIMER0_CTC_MODE:
         CLR_BIT(TCCR0A, WGM00);

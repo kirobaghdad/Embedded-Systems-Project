@@ -1,24 +1,27 @@
 // src/main.cpp
-#include <Arduino.h>
-#include "std_types.h"
-#include <util/delay.h>
-#include <arduino.h>
-#include "ULTRASONIC-HANDLER/ultrasonic_int.h"
-#include "GPIO/GPIO_int.h"
-#include "TIMER1/TIMER1_int.h"
-#include <arduino.h>
-#include <SoftwareSerial.h>
-#include <BLUETOOTH-HANDLER/bluetooth_int.h>
-#include "std_types.h"
-#include <util/delay.h>
-#include <arduino.h>
-#include "ULTRASONIC-HANDLER/ultrasonic_int.h"
-#include "GPIO/GPIO_int.h"
-#include "TIMER1/TIMER1_int.h"
 
+#include "ULTRASONIC-HANDLER/ultrasonic_int.h"
+#include "GPIO/GPIO_int.h"
+#include "TIMER1/TIMER1_int.h"
+#include "std_types.h"
+#include<arduino.h>
+#include <util/delay.h>
+#include "MOTOR-HANDLER/motor_int.h"
 # define DISTANCE_THRESHOLD 20
+#define MOTOR_SPEED 150 // Speed of the car (0-255)
 #define DELAY_PER_CM 21
 // #define DISTANCE_THRESHOLD 0.5
+static MOTOR_CONFIG motor_config_L = { { {PORT_C, PIN_1}, {PORT_C, PIN_0}, {PORT_D, PIN_6} },.PWM_Callback=TIMER0_CallBack_A };
+static MOTOR_CONFIG motor_config_R = { { {PORT_C, PIN_2}, {PORT_C, PIN_3}, {PORT_D, PIN_5} },.PWM_Callback=TIMER0_CallBack_B };
+static Timer0_params Timer0_CFG = {
+    .timer0_mode = TIMER0_FAST_PWM_MODE,
+    .timer0_prescaler = TIMER0_PRESCALER_64, // Have No idea why
+    .compare_val = 255, // Dummy but Works for CTC.
+    .com_rega = COM_NON_INVERTING,
+    .com_regb = COM_NON_INVERTING,
+    .OCR0A_val = MOTOR_SPEED,
+    .OCR0B_val = MOTOR_SPEED,
+};
 static ultrasonic_config_t FRONT_SENSOR = {.echo = {PORT_B, PIN_0}, .trigger = {PORT_D, PIN_2}};
 static ultrasonic_config_t RIGHT_SENSOR = {.echo = {PORT_B, PIN_0}, .trigger = {PORT_D, PIN_4}};
 static ultrasonic_config_t LEFT_SENSOR = {.echo = {PORT_B, PIN_0}, .trigger = {PORT_D, PIN_7}};
@@ -36,21 +39,21 @@ static Timer1_params timer1_conf = {
 
 #define MOV_DELAY 2000
 // Motor pin definitions
-// RIGHT motors
-#define RIGHT_MOTORS_IN1 A2
-#define RIGHT_MOTORS_IN2 A3
-#define ENA 5
+// // RIGHT motors
+// #define RIGHT_MOTORS_IN1 A2
+// #define RIGHT_MOTORS_IN2 A3
+// #define ENA 5
 
-// left motors
-#define LEFT_MOTORS_IN1 A1
-#define LEFT_MOTORS_IN2 A0
-#define ENB 6
+// // left motors
+// #define LEFT_MOTORS_IN1 A1
+// #define LEFT_MOTORS_IN2 A0
+// #define ENB 6
 
 // Constants
-const int MOTOR_SPEED = 150; // PWM speed (0-255)
+// const int MOTOR_SPEED = 150; // PWM speed (0-255)
 
 static uint8_t parking_side; // 'R' or 'L'
-static ultrasonic_config_t* SLOT_SIDE_SENSOR = NULL;// Function declarations
+static ultrasonic_config_t* SLOT_SIDE_SENSOR = nullptr;// Function declarations
 #define PARKING_GAP_MARGIN 5
 #define CAR_LENGTH 25
 #define CAR_WIDTH 10
@@ -65,16 +68,10 @@ void Car_RotateLeft90();
 
 void initMotors()
 {
-    // Initialize motor pins as outputs
-    pinMode(LEFT_MOTORS_IN1, OUTPUT);
-    pinMode(LEFT_MOTORS_IN2, OUTPUT);
-    pinMode(RIGHT_MOTORS_IN1, OUTPUT);
-    pinMode(RIGHT_MOTORS_IN2, OUTPUT);
-    pinMode(ENA, OUTPUT);
-    pinMode(ENB, OUTPUT);
-
+    MOTOR_u8MotorInit(&motor_config_L, &Timer0_CFG); 
+    MOTOR_u8MotorInit(&motor_config_R, &Timer0_CFG);
     // Ensure motors are stopped initially
-    stopMotors();
+    // stopMotors();
 }
 
 
@@ -139,41 +136,26 @@ void Car_RotateLeft90() {
 
 void moveForward()
 {
-    // Left motors forward
-    digitalWrite(LEFT_MOTORS_IN1, HIGH);
-    digitalWrite(LEFT_MOTORS_IN2, LOW);
-    analogWrite(ENA, MOTOR_SPEED);
-
-    // Right motors forward
-    digitalWrite(RIGHT_MOTORS_IN1, HIGH);
-    digitalWrite(RIGHT_MOTORS_IN2, LOW);
-    analogWrite(ENB, MOTOR_SPEED);
+     MOTOR_u8RightRotate(&motor_config_L, MOTOR_SPEED,&Timer0_CFG);
+    MOTOR_u8RightRotate(&motor_config_R, MOTOR_SPEED,&Timer0_CFG);
 }
 
 void moveBackward()
 {
     // Left motors backward
-    digitalWrite(LEFT_MOTORS_IN1, LOW);
-    digitalWrite(LEFT_MOTORS_IN2, HIGH);
-    analogWrite(ENA, MOTOR_SPEED);
-
-    // Right motors backward
-    digitalWrite(RIGHT_MOTORS_IN1, LOW);
-    digitalWrite(RIGHT_MOTORS_IN2, HIGH);
-    analogWrite(ENB, MOTOR_SPEED);
+    MOTOR_u8LeftRotate(&motor_config_L,MOTOR_SPEED,&Timer0_CFG);
+    MOTOR_u8LeftRotate(&motor_config_R,MOTOR_SPEED,&Timer0_CFG);
 }
 
 void moveRight()
 {
-    // Left motors forward
-    digitalWrite(LEFT_MOTORS_IN1, HIGH);
-    digitalWrite(LEFT_MOTORS_IN2, LOW);
-    analogWrite(ENA, MOTOR_SPEED);
-
-    // Right motors backward
-    digitalWrite(RIGHT_MOTORS_IN1, LOW);
-    digitalWrite(RIGHT_MOTORS_IN2, HIGH);
-    analogWrite(ENB, MOTOR_SPEED);
+    MOTOR_u8RightRotate(&motor_config_L, MOTOR_SPEED,&Timer0_CFG);
+    MOTOR_u8LeftRotate(&motor_config_R, MOTOR_SPEED ,&Timer0_CFG);
+}
+void moveLeft()
+{
+    MOTOR_u8LeftRotate(&motor_config_L, MOTOR_SPEED ,&Timer0_CFG);
+    MOTOR_u8RightRotate(&motor_config_R, MOTOR_SPEED,&Timer0_CFG);
 }
 void slot_detection_and_parking() {
     uint16_t right_distance = 0;
@@ -232,7 +214,7 @@ void slot_detection_and_parking() {
                     perform_parking();
                     stopMotors();
                     // indicate_parking_success();
-                    BLUETOOTH_sendChar('p');
+                    // BLUETOOTH_sendChar('p');
                     stopMotors();
                     perform_parking();
                     stopMotors();
@@ -248,35 +230,25 @@ void slot_detection_and_parking() {
     }
 }
 
-void moveLeft()
-{
-    // Left motors backward
-    digitalWrite(LEFT_MOTORS_IN1, LOW);
-    digitalWrite(LEFT_MOTORS_IN2, HIGH);
-    analogWrite(ENA, MOTOR_SPEED);
-
-    // Right motors forward
-    digitalWrite(RIGHT_MOTORS_IN1, HIGH);
-    digitalWrite(RIGHT_MOTORS_IN2, LOW);
-    analogWrite(ENB, MOTOR_SPEED);
-}
 
 void stopMotors()
 {
     // Stop all motors
-    digitalWrite(LEFT_MOTORS_IN1, LOW);
-    digitalWrite(LEFT_MOTORS_IN2, LOW);
-    digitalWrite(RIGHT_MOTORS_IN1, LOW);
-    digitalWrite(RIGHT_MOTORS_IN2, LOW);
-    analogWrite(ENA, 0);
-    analogWrite(ENB, 0);
+    // digitalWrite(LEFT_MOTORS_IN1, LOW);
+    // digitalWrite(LEFT_MOTORS_IN2, LOW);
+    // digitalWrite(RIGHT_MOTORS_IN1, LOW);
+    // digitalWrite(RIGHT_MOTORS_IN2, LOW);
+    // analogWrite(ENA, 0);
+    // analogWrite(ENB, 0);
+    MOTOR_u8MotorOff(&motor_config_L,&Timer0_CFG);
+    MOTOR_u8MotorOff(&motor_config_R, &Timer0_CFG);
 }
 
 void setup()
 {
     // Initialize Serial for debugging
     init();
-    BLUETOOTH_init();
+    // BLUETOOTH_init();
     Serial.begin(9600);
     initMotors();
     Serial.println("Motor Control Initialized");
@@ -303,34 +275,34 @@ void setup()
     delay(MOV_DELAY);
 
     stopMotors(); */
-    uint8_t receivedChar = BLUETOOTH_receiveChar();
-    while(receivedChar==0)
-    {
-        receivedChar = BLUETOOTH_receiveChar();
-    }
+    // uint8_t receivedChar = BLUETOOTH_receiveChar();
+    // while(receivedChar==0)
+    // {
+    //     receivedChar = BLUETOOTH_receiveChar();
+    // }
 
-     Serial.println(receivedChar);
-     if (receivedChar == 'p')
-     { // Only process if data was received
-        uint8_t receivedChar = BLUETOOTH_receiveChar();
-        while(receivedChar==0)
-           {
-               receivedChar =BLUETOOTH_receiveChar();
-           }
-        Serial.println(receivedChar);
-         if (receivedChar == 'L')
-         {
-             PARKING_TYPE = '|';
-         }
-         else if (receivedChar == 'R')
-         {
-             PARKING_TYPE = '-';
-         }
-         else
-         {
-             Serial.println("Invalid parking type received.");
-             return;
-         }
+    //  Serial.println(receivedChar);
+    //  if (receivedChar == 'p')
+    //  { // Only process if data was received
+    //     uint8_t receivedChar = BLUETOOTH_receiveChar();
+    //     while(receivedChar==0)
+    //        {
+    //            receivedChar =BLUETOOTH_receiveChar();
+    //        }
+    //     Serial.println(receivedChar);
+    //      if (receivedChar == 'L')
+    //      {
+    //          PARKING_TYPE = '|';
+    //      }
+    //      else if (receivedChar == 'R')
+    //      {
+    //          PARKING_TYPE = '-';
+    //      }
+    //      else
+    //      {
+    //          Serial.println("Invalid parking type received.");
+    //          return;
+    //      }
          // moveForward(); // Move forward on receiving any character
          slot_detection_and_parking(); // Call the parking function
          // Car_RotateLeft90();
@@ -338,7 +310,7 @@ void setup()
          // Car_RotateRight90();
          stopMotors(); // Stop after moving forward
      }  
-}
+// }
 
 // 70 cm -- > 1450 n
 // 25 --> t
