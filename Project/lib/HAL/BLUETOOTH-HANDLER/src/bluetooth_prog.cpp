@@ -1,49 +1,29 @@
-#include <SoftwareSerial.h>
 #include "BLUETOOTH-HANDLER/bluetooth_int.h"
 #include "BLUETOOTH-HANDLER/bluetooth_cfg.h"
 #include "GPIO/GPIO_int.h"
-#include<arduino.h>
-#include <string.h>
-
-SoftwareSerial bluetoothSerial(11,10); // RX, TX
-
+#include "USART-DRIVER/USART_int.h"
+#define bluetooth_portNumber PORT_D
+#
 void BLUETOOTH_init()
 {
-    // GPIO_SetPinMode(ARD_RX_PORT, ARD_RX_PIN, INPUT);
-    // GPIO_SetPinMode(ARD_TX_PORT, ARD_TX_PIN, OUTPUT);
-    Serial.begin(9600); // For debugging on Serial Monitor
-    bluetoothSerial.begin(9600);
+    GPIO_SetPinMode(Bluetooth_portNumber, Bluetooth_pinNumber, INPUT);
+    USART_Init(USART_BAUD_9600, USART_CHAR_SIZE_8, USART_PARITY_NONE, USART_STOP_1);
 }
 
 void BLUETOOTH_sendChar(uint8_t character)
 {
-    bluetoothSerial.write(character);
+    GPIO_SetPinMode(Bluetooth_portNumber, Bluetooth_pinNumber, INPUT);
+    USART_Transmit(character);
 }
 
 void BLUETOOTH_sendString(uint8_t *message)
 {
-    bluetoothSerial.print((char *)message);
+    GPIO_SetPinMode(Bluetooth_portNumber, Bluetooth_pinNumber, INPUT);
+    USART_TransmitString(message);
 }
 
-uint8_t BLUETOOTH_receiveChar(void) {
-    if (bluetoothSerial.available()) { // Check if data is available
-         Serial.println("Waiting for data in the loop...");
-        return bluetoothSerial.read(); // Read and return the character
-    }
-    return 0; 
-}
-
-String BLUETOOTH_receiveString(void) {
-    String mesg;
-
-    while(!bluetoothSerial.available())
-        ;
-
-    // start receiving string
-    while(bluetoothSerial.available())
-    {
-        mesg += BLUETOOTH_receiveChar();
-    }
-
-    return mesg; 
+uint8_t BLUETOOTH_receiveChar(void)
+{
+    GPIO_SetPinMode(Bluetooth_portNumber, Bluetooth_pinNumber, OUTPUT);
+    return USART_Receive();
 }

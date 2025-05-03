@@ -136,7 +136,7 @@ void Car_RotateLeft90() {
 
 void moveForward()
 {
-     MOTOR_u8RightRotate(&motor_config_L, MOTOR_SPEED,&Timer0_CFG);
+    MOTOR_u8RightRotate(&motor_config_L, MOTOR_SPEED,&Timer0_CFG);
     MOTOR_u8RightRotate(&motor_config_R, MOTOR_SPEED,&Timer0_CFG);
 }
 

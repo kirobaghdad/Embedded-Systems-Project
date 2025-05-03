@@ -4,7 +4,8 @@
 #define NULL_PTR ((void *) (0))
 #define NULL_CHAR ('\0')
 #define INITIAL_VALUE_ZERO (0)
-
+#define E_NOK (0)
+#define E_OK (1)
 typedef struct
 {
     uint8_t port;

@@ -15,6 +15,7 @@ void MOTOR_u8MotorInit(MOTOR_CONFIG *motor_config, Timer0_params *timer0_conf)
 
 	MOTOR_u8SetSpeed(0, motor_config->PWM_Callback, timer0_conf); // Set speed to 0%
 	TIMER0_INIT(timer0_conf);
+	
 }
 
 /*

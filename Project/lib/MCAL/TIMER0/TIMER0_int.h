@@ -1,7 +1,7 @@
 #ifndef TIMER0_INT_H_
 #define TIMER0_INT_H_
 #include <avr/interrupt.h>
-#include "TIMER0/TIMER0_address.h"
+// #include "TIMER0/TIMER0_address.h"
 #include "CPU_Configuration.h"
 #include "std_types.h"
 #define IS_VALID_MILLISECONDS(ms) ((ms) > 0)
@@ -32,9 +32,9 @@ typedef struct
     uint8_t OCR0B_val;
 } Timer0_params;
 static TIMER0_Mode_t TMR0_Mode = TIMER0_NORMAL_MODE;   // Default mode
-static void (*TMR0_OverflowCallback)(void) = NULL_PTR; // For Normal mode
-static void (*TMR0_CompareACallback)(void) = NULL_PTR; // For CTC or PWM (OC0A)
-static void (*TMR0_CompareBCallback)(void) = NULL_PTR; // For PWM (OC0B)
+static void (*TMR0_OverflowCallback)(void) = nullptr; // For Normal mode
+static void (*TMR0_CompareACallback)(void) = nullptr; // For CTC or PWM (OC0A)
+static void (*TMR0_CompareBCallback)(void) = nullptr; // For PWM (OC0B)
 static uint16_t TMR0_RequiredMatches = 0;              // For CTC mode
 static uint16_t TMR0_CurrentMatches = 0;               // For CTC mode
 static uint8_t TIMER0_CalculateTicks(Timer0_params *timer0_conf, uint16_t milliseconds, uint16_t *matches);

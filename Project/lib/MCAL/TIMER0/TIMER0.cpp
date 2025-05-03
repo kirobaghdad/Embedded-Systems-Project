@@ -47,6 +47,7 @@ void TIMER0_INIT(Timer0_params *timer_conf)
         SET_BIT(TIMSK0, OCIE0A);       // Enable compare match A interrupt
         break;
     case TIMER0_FAST_PWM_MODE:
+        
         SET_BIT(TCCR0A, WGM00);
         SET_BIT(TCCR0A, WGM01);
         CLR_BIT(TCCR0B, WGM02); // WGM02:0 = 011, TOP = 0xFF
@@ -112,14 +113,14 @@ void TMR0_SetCompareBCallback(void (*callbackFunc)(void))
     TMR0_CompareBCallback = callbackFunc;
 }
 
-// Timer0 Overflow ISR (Normal mode)
-ISR(TIMER0_OVF_vect)
-{
-    if (TMR0_OverflowCallback != NULL_PTR)
-    {
-        TMR0_OverflowCallback();
-    }
-}
+// // Timer0 Overflow ISR (Normal mode)
+// ISR(TIMER0_OVF_vect)
+// {
+//     if (TMR0_OverflowCallback != NULL_PTR)
+//     {
+//         TMR0_OverflowCallback();
+//     }
+// }
 
 ISR(TIMER0_COMPA_vect)
 {
@@ -156,6 +157,6 @@ void TIMER0_Set_PWM_DutyCycle_A(Timer0_params *timer_conf, uint8_t speed)
 }
 void TIMER0_Set_PWM_DutyCycle_B(Timer0_params *timer_conf, uint8_t speed)
 {
-    OCR0B = timer_conf->OCR0B_val;
+    OCR0B = speed;
     timer_conf->OCR0B_val = speed;
 }
