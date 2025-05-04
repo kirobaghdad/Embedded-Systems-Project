@@ -12,9 +12,9 @@
 #define MOV_DELAY 2000
 #define DISTANCE_THRESHOLD 20
 #define MOTOR_SPEED 150 // Speed of the car (0-255)
-#define DELAY_PER_CM 21
+#define DELAY_PER_CM 20
 #define PARKING_GAP_MARGIN 5
-#define CAR_LENGTH 25
+#define CAR_LENGTH 22
 #define CAR_WIDTH 10
 
 // #define DISTANCE_THRESHOLD 0.5
@@ -77,6 +77,10 @@ void perform_parking()
 {
     stopMotors();
     _delay_ms(1000);
+
+    // return a little bit
+    moveBackward();
+    _delay_ms(300);
 
     if (parking_side == 'R')
     {
@@ -188,9 +192,9 @@ void slot_detection_and_parking()
                 SLOT_SIDE_SENSOR = &RIGHT_SENSOR;
             }
 
-            measured_gap += 12;
+            measured_gap += 1;
             _delay_ms(DELAY_PER_CM);
-            // _delay_ms(30);
+
             if ((PARKING_TYPE == '-' && measured_gap >= (CAR_LENGTH + PARKING_GAP_MARGIN) / 2) ||
                 (PARKING_TYPE == '|' && measured_gap >= (CAR_WIDTH + PARKING_GAP_MARGIN) / 2))
             {
@@ -208,8 +212,7 @@ void slot_detection_and_parking()
                 parking_side = 'L';
                 SLOT_SIDE_SENSOR = &LEFT_SENSOR;
             }
-            measured_gap += 12;
-            //_delay_ms(30);
+            measured_gap += 1;
             _delay_ms(DELAY_PER_CM);
             if ((PARKING_TYPE == '-' && measured_gap >= (CAR_LENGTH + PARKING_GAP_MARGIN) / 2) ||
                 (PARKING_TYPE == '|' && measured_gap >= (CAR_WIDTH + PARKING_GAP_MARGIN) / 2))
