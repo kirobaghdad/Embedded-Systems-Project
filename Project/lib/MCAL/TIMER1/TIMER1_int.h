@@ -1,9 +1,9 @@
 #ifndef TIMER1_INT_H_
 #define TIMER1_INT_H_
 #include <avr/interrupt.h>
-// #include "TIMER1/TIMER1_address.h"
 #include "CPU_Configuration.h"
 #include "std_types.h"
+
 #define IS_VALID_MILLISECONDS(ms) ((ms) > 0)
 #define IS_VALID_CALLBACK(func) ((func) != NULL_PTR)
 typedef enum
@@ -38,13 +38,13 @@ typedef struct
     uint8_t OCR1B_val;
     ICU_Edge_t icu_edge;
 } Timer1_params;
-static TIMER1_Mode_t TIMER1_Mode = TIMER1_NORMAL_MODE;   // Default mode
+static TIMER1_Mode_t TIMER1_Mode = TIMER1_NORMAL_MODE;  // Default mode
 static void (*TIMER1_OverflowCallback)(void) = nullptr; // For Normal mode
 static void (*TIMER1_CompareACallback)(void) = nullptr; // For CTC or PWM (OC0A)
 static void (*TIMER1_CompareBCallback)(void) = nullptr; // For PWM (OC0B)
 static void (*TIMER1_ICUCallback)(void) = nullptr;      // For ICU mode
-static uint16_t TIMER1_RequiredMatches = 0;              // For CTC mode
-static uint16_t TIMER1_CurrentMatches = 0;               // For CTC mode
+static uint16_t TIMER1_RequiredMatches = 0;             // For CTC mode
+static uint16_t TIMER1_CurrentMatches = 0;              // For CTC mode
 static uint8_t TIMER1_CalculateTicks(Timer1_params *timer1_conf, uint16_t milliseconds, uint16_t *matches);
 void TIMER1_SetICUCallback(void (*callbackFunc)(void));
 void TIMER1_SetOverflowCallback(void (*callbackFunc)(void));

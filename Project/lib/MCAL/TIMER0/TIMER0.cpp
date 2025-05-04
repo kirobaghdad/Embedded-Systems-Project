@@ -47,7 +47,7 @@ void TIMER0_INIT(Timer0_params *timer_conf)
         SET_BIT(TIMSK0, OCIE0A);       // Enable compare match A interrupt
         break;
     case TIMER0_FAST_PWM_MODE:
-        
+
         SET_BIT(TCCR0A, WGM00);
         SET_BIT(TCCR0A, WGM01);
         CLR_BIT(TCCR0B, WGM02); // WGM02:0 = 011, TOP = 0xFF
@@ -90,7 +90,7 @@ void TIMER0_INIT(Timer0_params *timer_conf)
         break;
     }
     TCCR0B = (TCCR0B & ~(0x07)) | (timer_conf->timer0_prescaler & 0x07);
-    GLOBAL_INTERRUPT_vidGlobalInterruptEnable(ENABLED);
+    GLOBAL_INTERRUPT_GlobalInterruptEnable(ENABLED);
 }
 // Set callback for Normal mode (overflow)
 void TMR0_SetOverflowCallback(void (*callbackFunc)(void))
@@ -113,14 +113,14 @@ void TMR0_SetCompareBCallback(void (*callbackFunc)(void))
     TMR0_CompareBCallback = callbackFunc;
 }
 
-// // Timer0 Overflow ISR (Normal mode)
-// ISR(TIMER0_OVF_vect)
-// {
-//     if (TMR0_OverflowCallback != NULL_PTR)
-//     {
-//         TMR0_OverflowCallback();
-//     }
-// }
+// Timer0 Overflow ISR (Normal mode)
+ISR(TIMER0_OVF_vect)
+{
+    if (TMR0_OverflowCallback != NULL_PTR)
+    {
+        TMR0_OverflowCallback();
+    }
+}
 
 ISR(TIMER0_COMPA_vect)
 {

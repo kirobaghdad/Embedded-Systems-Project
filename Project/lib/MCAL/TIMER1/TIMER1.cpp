@@ -1,4 +1,4 @@
-#include <avr/io.h>
+// #include <avr/io.h>
 #include "TIMER1/TIMER1_int.h"
 #include "GPIO/GPIO_int.h"
 #include <Arduino.h>
@@ -101,12 +101,12 @@ void TIMER1_INIT(Timer1_params *timer_conf)
         SET_BIT(TIMSK1, ICIE1);
 
         SET_BIT(TIFR1, ICF1);
-        
+
         GPIO_SetPinMode(PORT_B, PIN_0, INPUT);
         break;
     }
     TCCR1B = (TCCR1B & ~(0x07)) | (timer_conf->timer1_prescaler & 0x07);
-    GLOBAL_INTERRUPT_vidGlobalInterruptEnable(ENABLED);
+    GLOBAL_INTERRUPT_GlobalInterruptEnable(ENABLED);
 }
 // Set callback for Normal mode (overflow)
 void TIMER1_SetOverflowCallback(void (*callbackFunc)(void))

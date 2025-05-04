@@ -6,6 +6,6 @@
 #define ENABLED (uint8_t)1
 #define DISABLED (uint8_t)0
 
-void GLOBAL_INTERRUPT_vidGlobalInterruptEnable(uint8_t mode);
+void GLOBAL_INTERRUPT_GlobalInterruptEnable(uint8_t mode);
 
 #endif

@@ -35,10 +35,12 @@ uint16_t Ultrasonic_readDistance(ultrasonic_config_t *ultrasonic_config, Timer1_
     g_timeoutOccurred = 0;
 
     Ultrasonic_Trigger(ultrasonic_config);
-    
-    while (g_edgeCount < 2 && !g_timeoutOccurred);
 
-    if (g_timeoutOccurred) {
+    while (g_edgeCount < 2 && !g_timeoutOccurred)
+        ;
+
+    if (g_timeoutOccurred)
+    {
         return 0; // Return 0 if timeout occurred
     }
 
@@ -67,12 +69,12 @@ void Ultrasonic_edgeProcessing(void)
     switch (g_edgeCount)
     {
     case 1:
-        TCNT1 = 0;                 // Clear Timer1 counter
-        CLR_BIT(TCCR1B, ICES1);    // Toggle edge detection (falling -> rising or vice versa)
+        TCNT1 = 0;              // Clear Timer1 counter
+        CLR_BIT(TCCR1B, ICES1); // Toggle edge detection (falling -> rising or vice versa)
         break;
     case 2:
-        g_T_edge = ICR1;           // Capture pulse width
-        SET_BIT(TCCR1B, ICES1);    // Toggle edge detection (rising -> falling)
+        g_T_edge = ICR1;        // Capture pulse width
+        SET_BIT(TCCR1B, ICES1); // Toggle edge detection (rising -> falling)
         break;
     }
 }

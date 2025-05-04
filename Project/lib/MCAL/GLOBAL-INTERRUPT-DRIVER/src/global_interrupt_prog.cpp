@@ -1,9 +1,9 @@
+#include <avr/io.h>
 #include "std_types.h"
 #include "CPU_Configuration.h"
 #include "GLOBAL-INTERRUPT-DRIVER/global_interrupt_int.h"
-#include "GLOBAL-INTERRUPT-DRIVER/global_interrupt_register.h"
 
-void GLOBAL_INTERRUPT_vidGlobalInterruptEnable(uint8_t mode)
+void GLOBAL_INTERRUPT_GlobalInterruptEnable(uint8_t mode)
 {
 
 	if (mode == ENABLED)

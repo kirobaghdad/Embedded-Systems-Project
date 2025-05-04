@@ -1,15 +1,12 @@
+#include <util/delay.h>
+#include "GPIO/GPIO_int.h"
 #include "USART-DRIVER/USART_Interface.h"
 #include "BLUETOOTH-HANDLER/bluetooth_int.h"
-#include "BLUETOOTH-HANDLER/bluetooth_cfg.h"
-#include "GPIO/GPIO_int.h"
-#include <util/delay.h>
 
 #define Bluetooth_RX_PORT (uint8_t)PORT_D
 #define Bluetooth_RX_PIN (uint8_t)PIN_0
 #define Bluetooth_TX_PORT (uint8_t)PORT_D
 #define Bluetooth_TX_PIN (uint8_t)PIN_1
-
-#define USART_DEFAULT_BAUD_RATE 9600
 
 void BLUETOOTH_init()
 {
