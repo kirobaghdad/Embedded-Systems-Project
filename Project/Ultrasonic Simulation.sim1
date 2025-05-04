@@ -1,0 +1,25 @@
+<circuit version="1.1.0-SR1" rev="2005" stepSize="1000000" stepsPS="1000000" NLsteps="100000" reaStep="1000000" animate="0" >
+
+<item itemtype="SR04" CircId="SR04-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-256,-48" rotation="90" hflip="1" vflip="-1" label="SR04-1" idLabPos="-16,-48" labelrot="0" valLabPos="-16,20" valLabRot="0" />
+
+<item itemtype="Subcircuit" CircId="Uno-2" mainComp="false" Show_id="true" Show_Val="false" Pos="-76,224" rotation="0" hflip="1" vflip="1" label="Uno-2" idLabPos="0,-20" labelrot="0" valLabPos="-16,20" valLabRot="0" Logic_Symbol="false">
+<mainCompProps MainCompId="mega328-109" Frequency="16 MHz" Program=".pio/build/uno/firmware.hex" Auto_Load="false" saveEepr="true" MainMcu="true" SerialMon="-1" />
+</item>
+
+<item itemtype="Led" CircId="Led-4" mainComp="false" Show_id="false" Show_Val="false" Pos="-272,160" rotation="0" hflip="-1" vflip="1" label="Led-4" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Color="Yellow" Grounded="true" Threshold="2.4 V" MaxCurrent="30 mA" Resistance="0.6 Ω" />
+
+<item itemtype="Ili9341" CircId="Ili9341-8" mainComp="false" Show_id="true" Show_Val="false" Pos="128,-64" rotation="0" hflip="1" vflip="1" label="Ili9341-8" idLabPos="-32,-180" labelrot="0" valLabPos="-16,20" valLabRot="0" />
+
+<item itemtype="Led" CircId="Led-11" mainComp="false" Show_id="false" Show_Val="false" Pos="-284,224" rotation="0" hflip="-1" vflip="1" label="Led-11" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" Color="Yellow" Grounded="true" Threshold="2.4 V" MaxCurrent="30 mA" Resistance="0.6 Ω" />
+
+<item itemtype="Connector" uid="Connector-2" startpinid="Uno-2-7" endpinid="SR04-1-trigpin" pointList="-68,296,-68,-48,-304,-48" />
+
+<item itemtype="Connector" uid="Connector-5" startpinid="SR04-1-inpin" endpinid="Uno-2-5V0" pointList="-232,40,76,40,76,320" />
+
+<item itemtype="Connector" uid="Connector-1" startpinid="SR04-1-outpin" endpinid="Uno-2-6" pointList="-304,-56,-304,288,-68,288" />
+
+<item itemtype="Connector" uid="Connector-6" startpinid="Led-4-lPin" endpinid="Uno-2-13" pointList="-256,160,-68,160,-68,352" />
+
+<item itemtype="Connector" uid="Connector-18" startpinid="Led-11-lPin" endpinid="Uno-2-9" pointList="-268,224,-68,224,-68,320" />
+
+</circuit>

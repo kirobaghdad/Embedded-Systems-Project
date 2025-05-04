@@ -1,0 +1,67 @@
+#include "std_types.h"
+#include <util/delay.h>
+#include <arduino.h>
+#include "ULTRASONIC-HANDLER/ultrasonic_int.h"
+#include "GPIO/GPIO_int.h"
+#include "TIMER1/TIMER1_int.h"
+
+
+// #define DISTANCE_THRESHOLD 0.5
+static ultrasonic_config_t front_sensor = {.echo = {PORT_B, PIN_0}, .trigger = {PORT_D, PIN_2}};
+static ultrasonic_config_t right_sensor = {.echo = {PORT_B, PIN_0}, .trigger = {PORT_D, PIN_4}};
+static ultrasonic_config_t left_sensor = {.echo = {PORT_B, PIN_0}, .trigger = {PORT_D, PIN_7}};
+static Timer1_params timer1_conf = {
+    .timer1_mode = TIMER1_ICU_MODE,
+    .timer1_prescaler = TIMER1_PRESCALER_64, // Have No idea why
+    .compare_val = 255,                      // Dummy but Works for CTC.
+    .com_rega = COM_NON_INVERTING,
+    .com_regb = COM_NON_INVERTING,
+    .OCR1A_val = 175,
+    .OCR1B_val = 175,
+    .icu_edge = ICU_RISING_EDGE
+};
+int main(void)
+{
+    uint16_t distance;
+    GPIO_SetPinMode(PORT_B, PIN_4, OUTPUT); // Set echo pin as input
+    GPIO_SetPinMode(PORT_B, PIN_5, OUTPUT); // Set echo pin as input
+    GPIO_SetPinValue(PORT_B, PIN_4, LOW);   // Set echo pin to low
+    GPIO_SetPinValue(PORT_B, PIN_5, LOW);   // Set echo pin to low
+
+    Serial.begin(9600);
+    Ultrasonic_init(&front_sensor,&timer1_conf);
+    Ultrasonic_init(&right_sensor,&timer1_conf);
+    Ultrasonic_init(&left_sensor,&timer1_conf);
+    Serial.print("Triggering ultrasonic sensor...\n");
+
+    while (1)
+    {
+        Serial.println("Distance Right: ");
+        
+        distance = Ultrasonic_readDistance(&right_sensor,&timer1_conf);
+        Serial.println(distance);
+        _delay_ms(1000);
+
+
+        GPIO_SetPinValue(PORT_B, PIN_4, HIGH);   // Set echo pin to high
+        GPIO_SetPinValue(PORT_B, PIN_5, LOW);   // Set echo pin to low
+        Serial.println("Distance Left: ");
+        
+        distance = Ultrasonic_readDistance(&left_sensor,&timer1_conf);
+        
+        Serial.println(distance);
+        _delay_ms(1000);
+
+        
+        GPIO_SetPinValue(PORT_B, PIN_4, LOW);   // Set echo pin to low
+        GPIO_SetPinValue(PORT_B, PIN_5, HIGH);   // Set echo pin to high
+        Serial.println("Distance Front: ");
+        
+        distance = Ultrasonic_readDistance(&front_sensor,&timer1_conf);
+        
+        Serial.println(distance);
+        _delay_ms(1000);
+    }
+
+    return 0;
+}

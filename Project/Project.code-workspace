@@ -1,12 +1,17 @@
 {
-	"folders": [
-		{
-			"path": "D:/University/Embedded Systems/Embedded Project/Embedded-Systems-Project/Project"
-		},
-		{
-			"name": "Self Parking Car",
-			"path": "."
-		}
-	],
-	"settings": {}
+  "folders": [
+    {
+      "path": "D:/University/Embedded Systems/Embedded Project/Embedded-Systems-Project/Project"
+    },
+    {
+      "name": "Self Parking Car",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.associations": {
+      "*.embeddedhtml": "html",
+      "softwareserial.h": "c"
+    }
+  }
 }

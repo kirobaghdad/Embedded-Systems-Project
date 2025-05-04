@@ -1,0 +1,15 @@
+#include <Arduino.h>
+#include "BLUETOOTH-HANDLER/bluetooth_int.h"
+
+int main(void)
+{
+    BLUETOOTH_init();
+
+    while (1)
+    {
+        uint8_t receivedChar = BLUETOOTH_receiveChar();
+        Serial.print((char)receivedChar);
+    }
+
+    return 0;
+}
