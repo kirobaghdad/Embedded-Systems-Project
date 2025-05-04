@@ -56,6 +56,15 @@ void stopMotors();
 void Car_RotateRight90();
 void Car_RotateLeft90();
 
+void blinkLed(){
+    GPIO_SetPinMode(PORT_B, PIN_5, OUTPUT); 
+    for (uint8_t i = 0; i < 10; i++) {
+        SET_BIT(PORTB, PIN_5); 
+        _delay_ms(100);        
+        CLR_BIT(PORTB, PIN_5); 
+        _delay_ms(100);        
+    }
+}
 void initMotors()
 {
     MOTOR_u8MotorInit(&motor_config_L, &Timer0_CFG);
@@ -101,8 +110,9 @@ void perform_parking()
             Car_RotateLeft90();
         }
     }
-
+    blinkLed();
     stopMotors();
+ 
 }
 void Car_RotateRight90()
 {
@@ -222,7 +232,7 @@ void slot_detection_and_parking()
                     stopMotors();
                     perform_parking();
                     stopMotors();
-
+                    
                     break;
                 }
                 else
@@ -234,6 +244,7 @@ void slot_detection_and_parking()
             _delay_ms(100);
         }
     }
+    
 }
 
 void stopMotors()
