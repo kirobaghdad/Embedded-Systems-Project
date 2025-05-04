@@ -3,6 +3,7 @@
 #include "USART-DRIVER/USART_Configuration.h"
 #include "USART-DRIVER/USART_Interface.h"
 #include "USART-DRIVER/USART_Address.h"
+#include <HardwareSerial.h>
 
 // Helper macros for validation
 #define IS_VALID_BAUD_RATE(rate) ((rate) >= 300 && (rate) <= 115200)
@@ -93,7 +94,7 @@ uint8_t USART_Receive()
 /*
  * Transmit a null_NULL_PTR-terminated string
  */
-uint8_t USART_TransmitString(uint8_t *str, uint8_t send_null_char)
+uint8_t USART_TransmitString(uint8_t *str, uint8_t send_null)
 {
 	if (!IS_VALID_STRING_PTR(str))
 		return E_NOK;
@@ -107,8 +108,23 @@ uint8_t USART_TransmitString(uint8_t *str, uint8_t send_null_char)
 	}
 
 	// Send nullcharacter if requested
-	if (send_null_char)
+	if (send_null)
 		return USART_Transmit(NULL_CHAR);
 
 	return E_OK;
+}
+
+void USART_ReceiveString(uint8_t *str)
+{
+	uint8_t i = 0;
+
+	str[i] = USART_Receive();
+
+	while (str[i] != MSG_DELIM)
+	{
+		i++;
+		str[i] = USART_Receive();
+	}
+
+	str[i] = '\0';
 }

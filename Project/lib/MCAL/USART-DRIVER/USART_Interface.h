@@ -16,4 +16,6 @@ uint8_t USART_Receive();
 // Transmit a null-terminated string
 uint8_t USART_TransmitString(uint8_t *str, uint8_t send_null);
 
-#endif 
+void USART_ReceiveString(uint8_t *str);
+
+#endif
